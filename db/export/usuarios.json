@@ -1,0 +1,176 @@
+[
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182933"
+    },
+    "nombre": "Ana Pool",
+    "correo": "a.pool@utm.example",
+    "rol": "reportante",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "administrativo"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182945"
+    },
+    "nombre": "Carlos Pech",
+    "correo": "c.pech@utm.example",
+    "rol": "tecnico",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "especialidades": [
+      "computo_redes",
+      "infraestructura"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182947"
+    },
+    "nombre": "Diana Euán",
+    "correo": "d.euan@utm.example",
+    "rol": "tecnico",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "especialidades": [
+      "academico",
+      "computo_redes"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182946"
+    },
+    "nombre": "Jorge Cauich",
+    "correo": "j.cauich@utm.example",
+    "rol": "tecnico",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "especialidades": [
+      "infraestructura"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182932"
+    },
+    "nombre": "Luis Chan",
+    "correo": "l.chan@utm.example",
+    "rol": "reportante",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "estudiante"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182941"
+    },
+    "nombre": "Laura Medina",
+    "correo": "l.medina@utm.example",
+    "rol": "admin_general",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182937"
+    },
+    "nombre": "Mario Dzul",
+    "correo": "m.dzul@utm.example",
+    "rol": "reportante",
+    "activo": false,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "docente"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182931"
+    },
+    "nombre": "María López",
+    "correo": "m.lopez@utm.example",
+    "rol": "reportante",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "docente"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182934"
+    },
+    "nombre": "Pedro Canul",
+    "correo": "p.canul@utm.example",
+    "rol": "reportante",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "docente"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182942"
+    },
+    "nombre": "Roberto Cetina",
+    "correo": "r.cetina@utm.example",
+    "rol": "directivo",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182936"
+    },
+    "nombre": "Rosa May",
+    "correo": "r.may@utm.example",
+    "rol": "reportante",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "administrativo"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182935"
+    },
+    "nombre": "Sofía Uc",
+    "correo": "s.uc@utm.example",
+    "rol": "reportante",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    },
+    "tipo": "estudiante"
+  },
+  {
+    "_id": {
+      "$oid": "6710a1b2c3d4e5f607182943"
+    },
+    "nombre": "Soporte UTM Desk",
+    "correo": "soporte@utm.example",
+    "rol": "admin_sistema",
+    "activo": true,
+    "fecha_alta": {
+      "$date": "2026-09-14T22:15:18.861Z"
+    }
+  }
+]

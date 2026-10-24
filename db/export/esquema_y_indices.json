@@ -1,0 +1,506 @@
+[
+  {
+    "coleccion": "usuarios",
+    "validador": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "nombre",
+          "correo",
+          "password_hash",
+          "rol",
+          "activo",
+          "fecha_alta"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "nombre": {
+            "bsonType": "string",
+            "minLength": 3
+          },
+          "correo": {
+            "bsonType": "string",
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+          },
+          "password_hash": {
+            "bsonType": "string",
+            "minLength": 20
+          },
+          "rol": {
+            "enum": [
+              "reportante",
+              "admin_general",
+              "tecnico",
+              "directivo",
+              "admin_sistema"
+            ]
+          },
+          "tipo": {
+            "enum": [
+              "docente",
+              "estudiante",
+              "administrativo"
+            ]
+          },
+          "especialidades": {
+            "bsonType": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "computo_redes",
+                "infraestructura",
+                "academico"
+              ]
+            }
+          },
+          "activo": {
+            "bsonType": "bool"
+          },
+          "fecha_alta": {
+            "bsonType": "date"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "rol": {
+                "enum": [
+                  "reportante"
+                ]
+              }
+            },
+            "required": [
+              "tipo"
+            ]
+          },
+          {
+            "properties": {
+              "rol": {
+                "enum": [
+                  "admin_general",
+                  "tecnico",
+                  "directivo",
+                  "admin_sistema"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "nivel_de_validacion": "strict",
+    "accion_de_validacion": "error",
+    "indices": [
+      {
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "key": {
+          "correo": 1
+        },
+        "name": "uniq_correo",
+        "unique": true
+      }
+    ]
+  },
+  {
+    "coleccion": "incidencias_campus",
+    "validador": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "codigo",
+          "titulo",
+          "descripcion",
+          "categoria",
+          "prioridad",
+          "estado",
+          "reportante",
+          "ubicacion",
+          "fecha_creacion",
+          "horas_invertidas",
+          "tags",
+          "detalle_especifico",
+          "historial_seguimiento",
+          "evidencias_adjuntas"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "codigo": {
+            "bsonType": "string",
+            "pattern": "^INC-\\d{4}-\\d{4}$"
+          },
+          "titulo": {
+            "bsonType": "string",
+            "minLength": 5,
+            "maxLength": 150
+          },
+          "descripcion": {
+            "bsonType": "string",
+            "minLength": 10
+          },
+          "categoria": {
+            "enum": [
+              "computo_redes",
+              "infraestructura",
+              "academico"
+            ]
+          },
+          "prioridad": {
+            "enum": [
+              "baja",
+              "media",
+              "alta",
+              "critica"
+            ]
+          },
+          "estado": {
+            "enum": [
+              "abierta",
+              "en proceso",
+              "en espera",
+              "resuelta",
+              "cerrada"
+            ]
+          },
+          "reportante": {
+            "bsonType": "object",
+            "required": [
+              "usuario_id",
+              "nombre",
+              "tipo",
+              "correo"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "usuario_id": {
+                "bsonType": "objectId"
+              },
+              "nombre": {
+                "bsonType": "string"
+              },
+              "tipo": {
+                "enum": [
+                  "docente",
+                  "estudiante",
+                  "administrativo"
+                ]
+              },
+              "correo": {
+                "bsonType": "string"
+              }
+            }
+          },
+          "tecnico_asignado": {
+            "bsonType": "object",
+            "required": [
+              "usuario_id",
+              "nombre"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "usuario_id": {
+                "bsonType": "objectId"
+              },
+              "nombre": {
+                "bsonType": "string"
+              }
+            }
+          },
+          "ubicacion": {
+            "bsonType": "object",
+            "required": [
+              "edificio",
+              "zona"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "edificio": {
+                "bsonType": "string"
+              },
+              "zona": {
+                "bsonType": "string"
+              },
+              "piso": {
+                "bsonType": "int",
+                "minimum": 0
+              }
+            }
+          },
+          "fecha_creacion": {
+            "bsonType": "date"
+          },
+          "fecha_resolucion": {
+            "bsonType": "date"
+          },
+          "horas_invertidas": {
+            "bsonType": [
+              "double",
+              "int"
+            ],
+            "minimum": 0
+          },
+          "tags": {
+            "bsonType": "array",
+            "uniqueItems": true,
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "detalle_especifico": {
+            "bsonType": "object"
+          },
+          "historial_seguimiento": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": [
+                "fecha",
+                "tecnico",
+                "estado",
+                "horas",
+                "comentario"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "fecha": {
+                  "bsonType": "date"
+                },
+                "tecnico": {
+                  "bsonType": "string"
+                },
+                "estado": {
+                  "enum": [
+                    "abierta",
+                    "en proceso",
+                    "en espera",
+                    "resuelta",
+                    "cerrada"
+                  ]
+                },
+                "horas": {
+                  "bsonType": [
+                    "double",
+                    "int"
+                  ],
+                  "minimum": 0
+                },
+                "comentario": {
+                  "bsonType": "string"
+                }
+              }
+            }
+          },
+          "evidencias_adjuntas": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": [
+                "nombre_archivo",
+                "tipo_mime",
+                "peso_kb",
+                "url_storage",
+                "fecha_carga"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "nombre_archivo": {
+                  "bsonType": "string"
+                },
+                "tipo_mime": {
+                  "enum": [
+                    "image/jpeg",
+                    "image/png",
+                    "application/pdf",
+                    "video/mp4"
+                  ]
+                },
+                "peso_kb": {
+                  "bsonType": "int",
+                  "minimum": 1
+                },
+                "url_storage": {
+                  "bsonType": "string"
+                },
+                "fecha_carga": {
+                  "bsonType": "date"
+                }
+              }
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "categoria": {
+                "enum": [
+                  "computo_redes"
+                ]
+              },
+              "detalle_especifico": {
+                "bsonType": "object",
+                "required": [
+                  "equipo_afectado",
+                  "direccion_ip",
+                  "vlan",
+                  "puerto_uplink",
+                  "equipos_afectados"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "equipo_afectado": {
+                    "bsonType": "string"
+                  },
+                  "direccion_ip": {
+                    "bsonType": "string"
+                  },
+                  "vlan": {
+                    "bsonType": "int",
+                    "minimum": 1,
+                    "maximum": 4094
+                  },
+                  "puerto_uplink": {
+                    "bsonType": "string"
+                  },
+                  "equipos_afectados": {
+                    "bsonType": "int",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "categoria": {
+                "enum": [
+                  "infraestructura"
+                ]
+              },
+              "detalle_especifico": {
+                "bsonType": "object",
+                "required": [
+                  "tipo_dano",
+                  "riesgo_seguridad"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "tipo_dano": {
+                    "bsonType": "string"
+                  },
+                  "riesgo_seguridad": {
+                    "bsonType": "bool"
+                  },
+                  "insumos_requeridos": {
+                    "bsonType": "array",
+                    "items": {
+                      "bsonType": "string"
+                    }
+                  },
+                  "contratista": {
+                    "bsonType": "object",
+                    "required": [
+                      "empresa",
+                      "intervencion"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "empresa": {
+                        "bsonType": "string"
+                      },
+                      "intervencion": {
+                        "bsonType": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "categoria": {
+                "enum": [
+                  "academico"
+                ]
+              },
+              "detalle_especifico": {
+                "bsonType": "object",
+                "required": [
+                  "plataforma",
+                  "codigo_curso",
+                  "periodo_escolar",
+                  "estudiantes_impactados"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "plataforma": {
+                    "bsonType": "string"
+                  },
+                  "codigo_curso": {
+                    "bsonType": "string"
+                  },
+                  "periodo_escolar": {
+                    "bsonType": "string"
+                  },
+                  "estudiantes_impactados": {
+                    "bsonType": "int",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "nivel_de_validacion": "strict",
+    "accion_de_validacion": "error",
+    "indices": [
+      {
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "key": {
+          "categoria": 1,
+          "estado": 1,
+          "ubicacion.edificio": 1
+        },
+        "name": "idx_categoria_estado_edificio"
+      },
+      {
+        "key": {
+          "fecha_resolucion": 1
+        },
+        "name": "ttl_fecha_resolucion",
+        "expireAfterSeconds": 5184000
+      },
+      {
+        "key": {
+          "_fts": "text",
+          "_ftsx": 1
+        },
+        "name": "txt_titulo_descripcion",
+        "weights": {
+          "descripcion": 5,
+          "titulo": 10
+        },
+        "default_language": "spanish",
+        "language_override": "language",
+        "textIndexVersion": 3
+      }
+    ]
+  }
+]

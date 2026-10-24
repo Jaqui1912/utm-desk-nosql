@@ -1,0 +1,1880 @@
+[
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0a8"
+    },
+    "codigo": "INC-2026-0001",
+    "titulo": "Punto de acceso Wi-Fi desconectado en la biblioteca",
+    "descripcion": "El punto de acceso de la sala de lectura no emite señal y los usuarios no pueden conectarse.",
+    "categoria": "computo_redes",
+    "prioridad": "media",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182934"
+      },
+      "nombre": "Pedro Canul",
+      "tipo": "docente",
+      "correo": "p.canul@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Biblioteca",
+      "zona": "Sala de lectura",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-04T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-05T04:15:18.861Z"
+    },
+    "horas_invertidas": 2.5,
+    "tags": [
+      "wifi",
+      "red"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Punto de acceso Wi-Fi",
+      "direccion_ip": "10.10.40.12",
+      "vlan": 40,
+      "puerto_uplink": "Gi0/12",
+      "equipos_afectados": 30
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-05T00:03:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 1.5,
+        "comentario": "Se verificó el cableado del punto de acceso."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-05T04:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "resuelta",
+        "horas": 1.0,
+        "comentario": "Se reemplazó el inyector PoE y volvió la señal."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "ap_biblioteca.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 737,
+        "url_storage": "incidencias/INC-2026-0001/ap_biblioteca.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-04T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0a9"
+    },
+    "codigo": "INC-2026-0002",
+    "titulo": "Servidor de archivos sin respuesta",
+    "descripcion": "El servidor de archivos no responde y se perdió el acceso a las carpetas compartidas.",
+    "categoria": "computo_redes",
+    "prioridad": "critica",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182933"
+      },
+      "nombre": "Ana Pool",
+      "tipo": "administrativo",
+      "correo": "a.pool@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182945"
+      },
+      "nombre": "Carlos Pech"
+    },
+    "ubicacion": {
+      "edificio": "Edificio D",
+      "zona": "Cuarto de servidores",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-09T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-10T01:15:18.861Z"
+    },
+    "horas_invertidas": 3.0,
+    "tags": [
+      "servidor",
+      "urgente"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Servidor de archivos",
+      "direccion_ip": "10.10.1.5",
+      "vlan": 10,
+      "puerto_uplink": "Te1/0/1",
+      "equipos_afectados": 85
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-09T23:09:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se reinició el servicio y no recuperó."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-10T01:15:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "resuelta",
+        "horas": 2.0,
+        "comentario": "Se reemplazó la fuente de poder y se restauró el servicio."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "estado_servidor.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 1558,
+        "url_storage": "incidencias/INC-2026-0002/estado_servidor.png",
+        "fecha_carga": {
+          "$date": "2026-10-09T22:30:18.861Z"
+        }
+      },
+      {
+        "nombre_archivo": "reporte_falla.pdf",
+        "tipo_mime": "application/pdf",
+        "peso_kb": 694,
+        "url_storage": "incidencias/INC-2026-0002/reporte_falla.pdf",
+        "fecha_carga": {
+          "$date": "2026-10-09T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0aa"
+    },
+    "codigo": "INC-2026-0003",
+    "titulo": "Switch de piso con puertos caídos",
+    "descripcion": "Varios puertos del switch del segundo piso no entregan red a las aulas.",
+    "categoria": "computo_redes",
+    "prioridad": "alta",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182931"
+      },
+      "nombre": "María López",
+      "tipo": "docente",
+      "correo": "m.lopez@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182945"
+      },
+      "nombre": "Carlos Pech"
+    },
+    "ubicacion": {
+      "edificio": "Edificio A",
+      "zona": "Cuarto de comunicaciones",
+      "piso": 2
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-12T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-14T02:15:18.861Z"
+    },
+    "horas_invertidas": 5.0,
+    "tags": [
+      "switch",
+      "red"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Switch de acceso",
+      "direccion_ip": "10.10.20.8",
+      "vlan": 20,
+      "puerto_uplink": "Gi1/0/48",
+      "equipos_afectados": 22
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-13T06:39:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "en proceso",
+        "horas": 2.0,
+        "comentario": "Se identificaron puertos con error de negociación."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-14T02:15:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "resuelta",
+        "horas": 3.0,
+        "comentario": "Se sustituyó el módulo de puertos."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "switch_piso2.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 2346,
+        "url_storage": "incidencias/INC-2026-0003/switch_piso2.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-12T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0ab"
+    },
+    "codigo": "INC-2026-0004",
+    "titulo": "Equipos del laboratorio sin acceso a internet",
+    "descripcion": "Los equipos del laboratorio 2 se conectan a la red local pero no tienen salida a internet.",
+    "categoria": "computo_redes",
+    "prioridad": "media",
+    "estado": "en proceso",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182932"
+      },
+      "nombre": "Luis Chan",
+      "tipo": "estudiante",
+      "correo": "l.chan@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio A",
+      "zona": "Laboratorio 2",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-21T22:15:18.861Z"
+    },
+    "horas_invertidas": 2.0,
+    "tags": [
+      "red",
+      "laboratorio"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Equipos de laboratorio",
+      "direccion_ip": "10.10.30.1",
+      "vlan": 30,
+      "puerto_uplink": "Gi1/0/12",
+      "equipos_afectados": 25
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-22T00:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 2.0,
+        "comentario": "Se revisa la configuración de la VLAN y la puerta de enlace."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "captura_error_red.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 670,
+        "url_storage": "incidencias/INC-2026-0004/captura_error_red.png",
+        "fecha_carga": {
+          "$date": "2026-10-21T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0ac"
+    },
+    "codigo": "INC-2026-0005",
+    "titulo": "Proyector del aula sin señal HDMI",
+    "descripcion": "El proyector del aula C-105 no detecta la señal del equipo del docente.",
+    "categoria": "computo_redes",
+    "prioridad": "baja",
+    "estado": "abierta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182935"
+      },
+      "nombre": "Sofía Uc",
+      "tipo": "estudiante",
+      "correo": "s.uc@utm.example"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Aula C-105",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-23T10:15:18.861Z"
+    },
+    "horas_invertidas": 0,
+    "tags": [
+      "proyector"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Proyector",
+      "direccion_ip": "10.10.60.31",
+      "vlan": 60,
+      "puerto_uplink": "Gi0/5",
+      "equipos_afectados": 1
+    },
+    "historial_seguimiento": [],
+    "evidencias_adjuntas": []
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0ad"
+    },
+    "codigo": "INC-2026-0006",
+    "titulo": "Impresora de control escolar fuera de la red",
+    "descripcion": "La impresora multifuncional de control escolar ya no aparece en la red.",
+    "categoria": "computo_redes",
+    "prioridad": "baja",
+    "estado": "cerrada",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182936"
+      },
+      "nombre": "Rosa May",
+      "tipo": "administrativo",
+      "correo": "r.may@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Control escolar",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-06T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-07T18:15:18.861Z"
+    },
+    "horas_invertidas": 1.5,
+    "tags": [
+      "impresora",
+      "red"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Impresora multifuncional",
+      "direccion_ip": "10.10.60.40",
+      "vlan": 60,
+      "puerto_uplink": "Gi0/9",
+      "equipos_afectados": 6
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-07T04:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 0.5,
+        "comentario": "Se verificó la dirección IP asignada."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-07T18:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "resuelta",
+        "horas": 1.0,
+        "comentario": "Se reasignó una IP fija y se reinstaló el controlador."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-07T19:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "cerrada",
+        "horas": 0,
+        "comentario": "Se confirmó con el reportante y se cierra la incidencia."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "impresora_config.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 1164,
+        "url_storage": "incidencias/INC-2026-0006/impresora_config.png",
+        "fecha_carga": {
+          "$date": "2026-10-06T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0ae"
+    },
+    "codigo": "INC-2026-0007",
+    "titulo": "Conexión intermitente en el servidor local",
+    "descripcion": "El servidor local se reinicia varias veces al día y interrumpe los servicios internos.",
+    "categoria": "computo_redes",
+    "prioridad": "alta",
+    "estado": "en espera",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182934"
+      },
+      "nombre": "Pedro Canul",
+      "tipo": "docente",
+      "correo": "p.canul@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182945"
+      },
+      "nombre": "Carlos Pech"
+    },
+    "ubicacion": {
+      "edificio": "Edificio D",
+      "zona": "Cuarto de servidores",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-18T22:15:18.861Z"
+    },
+    "horas_invertidas": 2.0,
+    "tags": [
+      "servidor",
+      "recurrente"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Servidor de aplicaciones",
+      "direccion_ip": "10.10.1.8",
+      "vlan": 10,
+      "puerto_uplink": "Te1/0/2",
+      "equipos_afectados": 60
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-19T00:15:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "en proceso",
+        "horas": 1.5,
+        "comentario": "Se identificó una fuente de poder defectuosa."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-19T02:15:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "en espera",
+        "horas": 0.5,
+        "comentario": "A la espera de la refacción del proveedor."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "diagnostico_servidor.pdf",
+        "tipo_mime": "application/pdf",
+        "peso_kb": 795,
+        "url_storage": "incidencias/INC-2026-0007/diagnostico_servidor.pdf",
+        "fecha_carga": {
+          "$date": "2026-10-18T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0af"
+    },
+    "codigo": "INC-2026-0008",
+    "titulo": "Cableado dañado en el laboratorio 4",
+    "descripcion": "Hay cables de red expuestos y dañados bajo las mesas del laboratorio 4.",
+    "categoria": "computo_redes",
+    "prioridad": "media",
+    "estado": "abierta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182931"
+      },
+      "nombre": "María López",
+      "tipo": "docente",
+      "correo": "m.lopez@utm.example"
+    },
+    "ubicacion": {
+      "edificio": "Edificio B",
+      "zona": "Laboratorio 4",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-24T10:15:18.861Z"
+    },
+    "horas_invertidas": 0,
+    "tags": [
+      "cableado",
+      "laboratorio"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Cableado estructurado",
+      "direccion_ip": "10.10.50.1",
+      "vlan": 50,
+      "puerto_uplink": "Gi1/0/20",
+      "equipos_afectados": 12
+    },
+    "historial_seguimiento": [],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "cables_lab4.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 1972,
+        "url_storage": "incidencias/INC-2026-0008/cables_lab4.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-24T10:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b1"
+    },
+    "codigo": "INC-2026-0009",
+    "titulo": "Luminarias fundidas en el pasillo",
+    "descripcion": "Tres luminarias del pasillo de planta baja están fundidas y el área queda oscura.",
+    "categoria": "infraestructura",
+    "prioridad": "baja",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182933"
+      },
+      "nombre": "Ana Pool",
+      "tipo": "administrativo",
+      "correo": "a.pool@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Edificio B",
+      "zona": "Pasillo principal",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-10T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-11T06:15:18.861Z"
+    },
+    "horas_invertidas": 2.5,
+    "tags": [
+      "iluminacion",
+      "electrico"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "luminarias fundidas",
+      "riesgo_seguridad": false,
+      "insumos_requeridos": [
+        "lámparas LED"
+      ]
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-11T00:39:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se midió el voltaje de las luminarias."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-11T06:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "resuelta",
+        "horas": 1.5,
+        "comentario": "Se sustituyeron las tres lámparas."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "pasillo_oscuro.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 2260,
+        "url_storage": "incidencias/INC-2026-0009/pasillo_oscuro.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-10T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b2"
+    },
+    "codigo": "INC-2026-0010",
+    "titulo": "Aire acondicionado sin enfriar en el laboratorio",
+    "descripcion": "El aire acondicionado del laboratorio enciende pero no enfría el ambiente.",
+    "categoria": "infraestructura",
+    "prioridad": "media",
+    "estado": "en proceso",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182934"
+      },
+      "nombre": "Pedro Canul",
+      "tipo": "docente",
+      "correo": "p.canul@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Edificio A",
+      "zona": "Laboratorio 1",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-20T22:15:18.861Z"
+    },
+    "horas_invertidas": 2.0,
+    "tags": [
+      "clima",
+      "laboratorio"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "falla de climatización",
+      "riesgo_seguridad": false,
+      "insumos_requeridos": [
+        "gas refrigerante"
+      ],
+      "contratista": {
+        "empresa": "Clima del Sureste",
+        "intervencion": "recarga de gas"
+      }
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-21T00:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 2.0,
+        "comentario": "Se revisa el compresor y se detecta baja presión."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "equipo_clima.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 2056,
+        "url_storage": "incidencias/INC-2026-0010/equipo_clima.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-20T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b3"
+    },
+    "codigo": "INC-2026-0011",
+    "titulo": "Cerradura dañada en la puerta del laboratorio",
+    "descripcion": "La cerradura de la puerta del laboratorio no gira y el acceso queda sin seguridad.",
+    "categoria": "infraestructura",
+    "prioridad": "media",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182931"
+      },
+      "nombre": "María López",
+      "tipo": "docente",
+      "correo": "m.lopez@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Laboratorio 5",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-13T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-15T04:15:18.861Z"
+    },
+    "horas_invertidas": 2.5,
+    "tags": [
+      "cerradura",
+      "seguridad"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "cerradura dañada",
+      "riesgo_seguridad": true,
+      "insumos_requeridos": [
+        "cerradura nueva"
+      ]
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-14T07:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se desmontó la cerradura para diagnóstico."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-15T04:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "resuelta",
+        "horas": 1.5,
+        "comentario": "Se instaló una cerradura nueva."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "cerradura.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 1232,
+        "url_storage": "incidencias/INC-2026-0011/cerradura.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-13T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b4"
+    },
+    "codigo": "INC-2026-0012",
+    "titulo": "Humedad en la pared de la biblioteca",
+    "descripcion": "Una pared del área de acervo presenta humedad y desprendimiento de pintura.",
+    "categoria": "infraestructura",
+    "prioridad": "alta",
+    "estado": "en espera",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182936"
+      },
+      "nombre": "Rosa May",
+      "tipo": "administrativo",
+      "correo": "r.may@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Biblioteca",
+      "zona": "Acervo general",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-17T22:15:18.861Z"
+    },
+    "horas_invertidas": 1.5,
+    "tags": [
+      "humedad",
+      "recurrente"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "humedad en muro",
+      "riesgo_seguridad": false,
+      "insumos_requeridos": [
+        "impermeabilizante"
+      ]
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-18T00:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se inspeccionó la pared afectada."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-18T02:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en espera",
+        "horas": 0.5,
+        "comentario": "Pendiente de autorización de presupuesto."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "humedad_pared.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 260,
+        "url_storage": "incidencias/INC-2026-0012/humedad_pared.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-17T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b5"
+    },
+    "codigo": "INC-2026-0013",
+    "titulo": "Banca rota en el patio central",
+    "descripcion": "Una banca del patio central tiene la base rota y puede ser un riesgo para quien la use.",
+    "categoria": "infraestructura",
+    "prioridad": "baja",
+    "estado": "abierta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182932"
+      },
+      "nombre": "Luis Chan",
+      "tipo": "estudiante",
+      "correo": "l.chan@utm.example"
+    },
+    "ubicacion": {
+      "edificio": "Edificio D",
+      "zona": "Patio central",
+      "piso": 0
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-22T22:15:18.861Z"
+    },
+    "horas_invertidas": 0,
+    "tags": [
+      "mobiliario"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "mobiliario dañado",
+      "riesgo_seguridad": false
+    },
+    "historial_seguimiento": [],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "banca_rota.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 580,
+        "url_storage": "incidencias/INC-2026-0013/banca_rota.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-22T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b6"
+    },
+    "codigo": "INC-2026-0014",
+    "titulo": "Cortocircuito en un contacto del aula",
+    "descripcion": "Un contacto del aula B-110 hizo chispas y se disparó la protección eléctrica.",
+    "categoria": "infraestructura",
+    "prioridad": "critica",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182935"
+      },
+      "nombre": "Sofía Uc",
+      "tipo": "estudiante",
+      "correo": "s.uc@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Edificio B",
+      "zona": "Aula B-110",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-14T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-15T02:15:18.861Z"
+    },
+    "horas_invertidas": 3.0,
+    "tags": [
+      "electrico",
+      "urgente"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "cortocircuito",
+      "riesgo_seguridad": true,
+      "insumos_requeridos": [
+        "contacto",
+        "cable calibre 12"
+      ]
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-14T23:27:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se cortó la energía del circuito y se aisló el área."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-15T02:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "resuelta",
+        "horas": 2.0,
+        "comentario": "Se reemplazó el contacto y el cableado dañado."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "contacto_quemado.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 703,
+        "url_storage": "incidencias/INC-2026-0014/contacto_quemado.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-14T22:30:18.861Z"
+        }
+      },
+      {
+        "nombre_archivo": "reporte_electrico.pdf",
+        "tipo_mime": "application/pdf",
+        "peso_kb": 474,
+        "url_storage": "incidencias/INC-2026-0014/reporte_electrico.pdf",
+        "fecha_carga": {
+          "$date": "2026-10-14T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b7"
+    },
+    "codigo": "INC-2026-0015",
+    "titulo": "Goteras en el techo de la biblioteca",
+    "descripcion": "Entra agua por el techo de la biblioteca durante las lluvias y moja el mobiliario.",
+    "categoria": "infraestructura",
+    "prioridad": "alta",
+    "estado": "cerrada",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182933"
+      },
+      "nombre": "Ana Pool",
+      "tipo": "administrativo",
+      "correo": "a.pool@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Biblioteca",
+      "zona": "Sala de lectura",
+      "piso": 2
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-02T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-05T02:15:18.861Z"
+    },
+    "horas_invertidas": 7.0,
+    "tags": [
+      "filtracion",
+      "techo",
+      "recurrente"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "filtración",
+      "riesgo_seguridad": true,
+      "insumos_requeridos": [
+        "impermeabilizante",
+        "sellador"
+      ],
+      "contratista": {
+        "empresa": "Impermeabilizaciones del Sureste",
+        "intervencion": "sellado de losa"
+      }
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-03T13:51:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 2.0,
+        "comentario": "Se localizó el punto de filtración en la losa."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-05T02:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "resuelta",
+        "horas": 5.0,
+        "comentario": "Se selló la losa con impermeabilizante."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-05T03:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "cerrada",
+        "horas": 0,
+        "comentario": "Se confirmó con el reportante y se cierra la incidencia."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "gotera_biblioteca.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 651,
+        "url_storage": "incidencias/INC-2026-0015/gotera_biblioteca.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-02T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b8"
+    },
+    "codigo": "INC-2026-0016",
+    "titulo": "Falla en la bomba de agua del edificio",
+    "descripcion": "La bomba de agua dejó de funcionar y los sanitarios del edificio no tienen servicio.",
+    "categoria": "infraestructura",
+    "prioridad": "critica",
+    "estado": "en proceso",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182934"
+      },
+      "nombre": "Pedro Canul",
+      "tipo": "docente",
+      "correo": "p.canul@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Edificio D",
+      "zona": "Cuarto de máquinas",
+      "piso": 0
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-23T22:15:18.861Z"
+    },
+    "horas_invertidas": 3.0,
+    "tags": [
+      "bomba",
+      "urgente"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "falla de bomba de agua",
+      "riesgo_seguridad": false,
+      "insumos_requeridos": [
+        "motor de bomba"
+      ],
+      "contratista": {
+        "empresa": "Hidráulica Peninsular",
+        "intervencion": "rebobinado de motor"
+      }
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-24T00:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "en proceso",
+        "horas": 3.0,
+        "comentario": "Se detecta motor quemado y se cotiza el rebobinado."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "bomba_agua.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 2091,
+        "url_storage": "incidencias/INC-2026-0016/bomba_agua.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-23T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b9"
+    },
+    "codigo": "INC-2026-0017",
+    "titulo": "Filtración de agua en techo del aula B-204",
+    "descripcion": "Gotea agua desde el plafón durante lluvias y afecta el mobiliario.",
+    "categoria": "infraestructura",
+    "prioridad": "media",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182932"
+      },
+      "nombre": "Luis Chan",
+      "tipo": "estudiante",
+      "correo": "l.chan@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182946"
+      },
+      "nombre": "Jorge Cauich"
+    },
+    "ubicacion": {
+      "edificio": "Edificio B",
+      "zona": "Aula B-204",
+      "piso": 2
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-04T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-11T22:15:18.861Z"
+    },
+    "horas_invertidas": 6.0,
+    "tags": [
+      "filtracion",
+      "techo",
+      "recurrente"
+    ],
+    "detalle_especifico": {
+      "tipo_dano": "filtracion",
+      "riesgo_seguridad": true,
+      "insumos_requeridos": [
+        "impermeabilizante",
+        "sellador"
+      ],
+      "contratista": {
+        "empresa": "Impermeabilizaciones del Sureste",
+        "intervencion": "sellado de losa"
+      }
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-11T22:15:18.861Z"
+        },
+        "tecnico": "Jorge Cauich",
+        "estado": "resuelta",
+        "horas": 6.0,
+        "comentario": "Se selló la losa y se verificó sin filtraciones."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "reporte_mantenimiento.pdf",
+        "tipo_mime": "application/pdf",
+        "peso_kb": 420,
+        "url_storage": "incidencias/INC-2026-0017/reporte_mantenimiento.pdf",
+        "fecha_carga": {
+          "$date": "2026-10-04T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0ba"
+    },
+    "codigo": "INC-2026-0018",
+    "titulo": "Error al iniciar sesión en el aula virtual",
+    "descripcion": "Los docentes reciben un error de credenciales al entrar al aula virtual.",
+    "categoria": "academico",
+    "prioridad": "alta",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182931"
+      },
+      "nombre": "María López",
+      "tipo": "docente",
+      "correo": "m.lopez@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Sala de docentes",
+      "piso": 2
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-11T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-12T10:15:18.861Z"
+    },
+    "horas_invertidas": 2.5,
+    "tags": [
+      "aula-virtual",
+      "acceso"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Aula virtual",
+      "codigo_curso": "TI-501",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 42
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-12T01:51:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se reproduce el error con una cuenta de prueba."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-12T10:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "resuelta",
+        "horas": 1.5,
+        "comentario": "Se restableció la sincronización de cuentas."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "error_login.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 297,
+        "url_storage": "incidencias/INC-2026-0018/error_login.png",
+        "fecha_carga": {
+          "$date": "2026-10-11T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0bb"
+    },
+    "codigo": "INC-2026-0019",
+    "titulo": "El portal Saeko no muestra las calificaciones",
+    "descripcion": "Los estudiantes no ven sus calificaciones parciales en el portal Saeko.",
+    "categoria": "academico",
+    "prioridad": "critica",
+    "estado": "en proceso",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182936"
+      },
+      "nombre": "Rosa May",
+      "tipo": "administrativo",
+      "correo": "r.may@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Control escolar",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-22T22:15:18.861Z"
+    },
+    "horas_invertidas": 2.0,
+    "tags": [
+      "saeko",
+      "calificaciones"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Portal Saeko",
+      "codigo_curso": "TI-603",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 120
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-23T00:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 2.0,
+        "comentario": "Se reportó la falla al proveedor del portal."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "captura_saeko.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 2258,
+        "url_storage": "incidencias/INC-2026-0019/captura_saeko.png",
+        "fecha_carga": {
+          "$date": "2026-10-22T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0bc"
+    },
+    "codigo": "INC-2026-0020",
+    "titulo": "Bloqueo de cuenta de correo institucional",
+    "descripcion": "La cuenta de correo institucional de un docente quedó bloqueada tras varios intentos fallidos.",
+    "categoria": "academico",
+    "prioridad": "media",
+    "estado": "resuelta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182934"
+      },
+      "nombre": "Pedro Canul",
+      "tipo": "docente",
+      "correo": "p.canul@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio A",
+      "zona": "Cubículo de docentes",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-16T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-17T01:15:18.861Z"
+    },
+    "horas_invertidas": 0.5,
+    "tags": [
+      "correo",
+      "cuenta"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Correo institucional",
+      "codigo_curso": "N/A",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 1
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-17T01:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "resuelta",
+        "horas": 0.5,
+        "comentario": "Se desbloqueó la cuenta y se restableció la contraseña."
+      }
+    ],
+    "evidencias_adjuntas": []
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0bd"
+    },
+    "codigo": "INC-2026-0021",
+    "titulo": "Página institucional fuera de servicio",
+    "descripcion": "La página institucional no carga y el público no puede consultar la oferta educativa.",
+    "categoria": "academico",
+    "prioridad": "alta",
+    "estado": "cerrada",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182933"
+      },
+      "nombre": "Ana Pool",
+      "tipo": "administrativo",
+      "correo": "a.pool@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio D",
+      "zona": "Dirección",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-07T22:15:18.861Z"
+    },
+    "fecha_resolucion": {
+      "$date": "2026-10-08T12:15:18.861Z"
+    },
+    "horas_invertidas": 2.5,
+    "tags": [
+      "pagina-institucional",
+      "urgente"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Página institucional",
+      "codigo_curso": "N/A",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 900
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-08T02:27:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se confirma que el hosting dejó de responder."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-08T12:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "resuelta",
+        "horas": 1.5,
+        "comentario": "Se reinició el servicio con el proveedor de hosting."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-08T13:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "cerrada",
+        "horas": 0,
+        "comentario": "Se confirmó con el reportante y se cierra la incidencia."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "sitio_caido.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 1537,
+        "url_storage": "incidencias/INC-2026-0021/sitio_caido.png",
+        "fecha_carga": {
+          "$date": "2026-10-07T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0be"
+    },
+    "codigo": "INC-2026-0022",
+    "titulo": "No se puede asentar el acta de calificaciones del grupo TI-701",
+    "descripcion": "El portal marca error al guardar las calificaciones finales del grupo TI-701.",
+    "categoria": "academico",
+    "prioridad": "critica",
+    "estado": "en espera",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182931"
+      },
+      "nombre": "María López",
+      "tipo": "docente",
+      "correo": "m.lopez@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Control escolar",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-19T22:15:18.861Z"
+    },
+    "horas_invertidas": 2.0,
+    "tags": [
+      "calificaciones",
+      "portal"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Portal de calificaciones",
+      "codigo_curso": "TI-701",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 35
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-20T00:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 1.5,
+        "comentario": "Se reproduce el error y se recopilan evidencias."
+      },
+      {
+        "fecha": {
+          "$date": "2026-10-20T02:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en espera",
+        "horas": 0.5,
+        "comentario": "Esperando respuesta del proveedor del portal."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "error_acta.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 1111,
+        "url_storage": "incidencias/INC-2026-0022/error_acta.png",
+        "fecha_carga": {
+          "$date": "2026-10-19T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0bf"
+    },
+    "codigo": "INC-2026-0023",
+    "titulo": "No carga el material del curso en el aula virtual",
+    "descripcion": "Los archivos del curso TI-402 no se descargan desde el aula virtual.",
+    "categoria": "academico",
+    "prioridad": "baja",
+    "estado": "abierta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182932"
+      },
+      "nombre": "Luis Chan",
+      "tipo": "estudiante",
+      "correo": "l.chan@utm.example"
+    },
+    "ubicacion": {
+      "edificio": "Edificio B",
+      "zona": "Aula B-201",
+      "piso": 2
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-23T22:15:18.861Z"
+    },
+    "horas_invertidas": 0,
+    "tags": [
+      "aula-virtual"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Aula virtual",
+      "codigo_curso": "TI-402",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 28
+    },
+    "historial_seguimiento": [],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "captura_material.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 1877,
+        "url_storage": "incidencias/INC-2026-0023/captura_material.png",
+        "fecha_carga": {
+          "$date": "2026-10-23T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0c0"
+    },
+    "codigo": "INC-2026-0024",
+    "titulo": "Restablecer la contraseña del portal de alumnos",
+    "descripcion": "Una estudiante no puede entrar al portal de alumnos y no recuerda su contraseña.",
+    "categoria": "academico",
+    "prioridad": "baja",
+    "estado": "abierta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182935"
+      },
+      "nombre": "Sofía Uc",
+      "tipo": "estudiante",
+      "correo": "s.uc@utm.example"
+    },
+    "ubicacion": {
+      "edificio": "Biblioteca",
+      "zona": "Sala de cómputo",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-24T15:03:18.861Z"
+    },
+    "horas_invertidas": 0,
+    "tags": [
+      "acceso",
+      "cuenta"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Portal de alumnos",
+      "codigo_curso": "N/A",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 1
+    },
+    "historial_seguimiento": [],
+    "evidencias_adjuntas": []
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0c1"
+    },
+    "codigo": "INC-2026-0025",
+    "titulo": "Error 500 al registrar asistencia en el aula virtual",
+    "descripcion": "Al registrar la asistencia del curso TI-502 el aula virtual muestra un error 500.",
+    "categoria": "academico",
+    "prioridad": "media",
+    "estado": "en proceso",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182934"
+      },
+      "nombre": "Pedro Canul",
+      "tipo": "docente",
+      "correo": "p.canul@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182947"
+      },
+      "nombre": "Diana Euán"
+    },
+    "ubicacion": {
+      "edificio": "Edificio A",
+      "zona": "Aula A-103",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-22T10:15:18.861Z"
+    },
+    "horas_invertidas": 1.0,
+    "tags": [
+      "aula-virtual",
+      "error-500"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Aula virtual",
+      "codigo_curso": "TI-502",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 31
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-22T12:15:18.861Z"
+        },
+        "tecnico": "Diana Euán",
+        "estado": "en proceso",
+        "horas": 1.0,
+        "comentario": "Se reproduce el error en el curso TI-502."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "error_500.png",
+        "tipo_mime": "image/png",
+        "peso_kb": 1280,
+        "url_storage": "incidencias/INC-2026-0025/error_500.png",
+        "fecha_carga": {
+          "$date": "2026-10-22T10:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0b0"
+    },
+    "codigo": "INC-2026-0042",
+    "titulo": "Switch de distribución sin respuesta en Laboratorio 3",
+    "descripcion": "El switch del laboratorio no responde y los equipos perdieron conexión a la red.",
+    "categoria": "computo_redes",
+    "prioridad": "alta",
+    "estado": "en proceso",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182931"
+      },
+      "nombre": "María López",
+      "tipo": "docente",
+      "correo": "m.lopez@utm.example"
+    },
+    "tecnico_asignado": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182945"
+      },
+      "nombre": "Carlos Pech"
+    },
+    "ubicacion": {
+      "edificio": "Edificio A",
+      "zona": "Laboratorio 3",
+      "piso": 2
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-21T22:15:18.861Z"
+    },
+    "horas_invertidas": 2.5,
+    "tags": [
+      "red",
+      "switch",
+      "laboratorio"
+    ],
+    "detalle_especifico": {
+      "equipo_afectado": "Switch de distribución",
+      "direccion_ip": "10.10.20.5",
+      "vlan": 120,
+      "puerto_uplink": "Gi1/0/24",
+      "equipos_afectados": 14
+    },
+    "historial_seguimiento": [
+      {
+        "fecha": {
+          "$date": "2026-10-22T00:15:18.861Z"
+        },
+        "tecnico": "Carlos Pech",
+        "estado": "en proceso",
+        "horas": 2.5,
+        "comentario": "Se detecta falla en el puerto de uplink; se solicita reemplazo de módulo."
+      }
+    ],
+    "evidencias_adjuntas": [
+      {
+        "nombre_archivo": "switch_lab3.jpg",
+        "tipo_mime": "image/jpeg",
+        "peso_kb": 850,
+        "url_storage": "incidencias/INC-2026-0042/switch_lab3.jpg",
+        "fecha_carga": {
+          "$date": "2026-10-21T22:30:18.861Z"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6add2dfba0da51fbdb99e0c2"
+    },
+    "codigo": "INC-2026-0051",
+    "titulo": "No se puede asentar el acta de calificaciones",
+    "descripcion": "El portal marca error al guardar las calificaciones del grupo.",
+    "categoria": "academico",
+    "prioridad": "critica",
+    "estado": "abierta",
+    "reportante": {
+      "usuario_id": {
+        "$oid": "6710a1b2c3d4e5f607182933"
+      },
+      "nombre": "Ana Pool",
+      "tipo": "administrativo",
+      "correo": "a.pool@utm.example"
+    },
+    "ubicacion": {
+      "edificio": "Edificio C",
+      "zona": "Control escolar",
+      "piso": 1
+    },
+    "fecha_creacion": {
+      "$date": "2026-10-24T10:15:18.861Z"
+    },
+    "horas_invertidas": 0,
+    "tags": [
+      "portal",
+      "calificaciones"
+    ],
+    "detalle_especifico": {
+      "plataforma": "Portal de calificaciones",
+      "codigo_curso": "TI-702",
+      "periodo_escolar": "Sep-Dic 2026",
+      "estudiantes_impactados": 38
+    },
+    "historial_seguimiento": [],
+    "evidencias_adjuntas": []
+  }
+]
