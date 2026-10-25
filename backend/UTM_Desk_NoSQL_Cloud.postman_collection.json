@@ -1,0 +1,759 @@
+{
+  "info": {
+    "_postman_id": "b2c3d4e5-f6a7-8901-bcde-fa1234567890",
+    "name": "UTM Desk NoSQL Cloud - API Test Suite (Completa)",
+    "description": "Banco formal de pruebas para UTM Desk NoSQL Cloud. Cubre autenticación JWT (RF-12), control de acceso por roles (RF-15), gestión de usuarios (RF-14), asignación técnica (RF-13), los 7 casos de uso (CU-01 a CU-07), operaciones atómicas ($set, $inc, $push, $addToSet, $pull), pipelines analíticos de agregación y códigos de estado HTTP (200, 201, 400, 401, 403, 404).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "token_admin_general",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_reportante",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_tecnico",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_admin_sistema",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "codigo_incidencia",
+      "value": "INC-2026-0001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health & Conectividad",
+      "item": [
+        {
+          "name": "Health Check (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Autenticación y Tokens (RF-12)",
+      "item": [
+        {
+          "name": "Login Admin General (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set('token_admin_general', jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"l.medina@utm.example\",\n  \"password\": \"Utm2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Inicia sesión como Laura Medina (Administradora General) y almacena el token."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Reportante Docente (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set('token_reportante', jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"m.lopez@utm.example\",\n  \"password\": \"Utm2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Inicia sesión como María López (Reportante Docente)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Técnico (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set('token_tecnico', jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"c.pech@utm.example\",\n  \"password\": \"Utm2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Inicia sesión como Carlos Pech (Técnico de cómputo e infraestructura)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Admin Sistema (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set('token_admin_sistema', jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"soporte@utm.example\",\n  \"password\": \"Utm2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Inicia sesión como Soporte UTM Desk (Administrador del Sistema)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Fallido - Contraseña Incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"l.medina@utm.example\",\n  \"password\": \"PasswordErroneo123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "RF-12 Criterio de aceptación: con credenciales incorrectas devuelve HTTP 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Fallido - Usuario Desactivado (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"m.dzul@utm.example\",\n  \"password\": \"Utm2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "RF-14 Criterio de aceptación: Mario Dzul (activo: false) no puede iniciar sesión -> HTTP 401."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Gestión de Usuarios (RF-14)",
+      "item": [
+        {
+          "name": "Listar Usuarios (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_sistema}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios/",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", ""]
+            },
+            "description": "RF-14: Consulta de usuarios del sistema (solo admin_sistema)."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Usuario Nuevo (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_sistema}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Gabriel Noh\",\n  \"correo\": \"g.noh@utm.example\",\n  \"password\": \"Utm2026!\",\n  \"rol\": \"tecnico\",\n  \"especialidades\": [\"computo_redes\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", ""]
+            },
+            "description": "RF-14: Administrador del sistema crea un nuevo técnico con password cifrado por bcrypt."
+          },
+          "response": []
+        },
+        {
+          "name": "Intento Crear Usuario sin Permiso (403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_reportante}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Intruso\",\n  \"correo\": \"intruso@utm.example\",\n  \"password\": \"Utm2026!\",\n  \"rol\": \"reportante\",\n  \"tipo\": \"estudiante\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", ""]
+            },
+            "description": "RF-15: Un reportante intenta crear usuarios y recibe HTTP 403 Forbidden."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Asignación Técnica (RF-13)",
+      "item": [
+        {
+          "name": "Asignar Técnico Responsable (200 OK)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tecnico_id\": \"6710a1b2c3d4e5f607182945\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/INC-2026-0004/asignar-tecnico",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "INC-2026-0004", "asignar-tecnico"]
+            },
+            "description": "RF-13: Administrador General asigna al técnico Carlos Pech (6710a1b2c3d4e5f607182945)."
+          },
+          "response": []
+        },
+        {
+          "name": "Asignación Denegada a Técnico (403 Forbidden)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tecnico_id\": \"6710a1b2c3d4e5f607182945\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/INC-2026-0004/asignar-tecnico",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "INC-2026-0004", "asignar-tecnico"]
+            },
+            "description": "RF-13 Criterio: cualquier rol distinto al administrador general recibe HTTP 403."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. CU-01 Registrar Incidencia",
+      "item": [
+        {
+          "name": "CU-01: Registrar Cómputo y Redes (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_reportante}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Falla en switch de laboratorio de robótica\",\n  \"descripcion\": \"VLAN de laboratorio aislada, sin salida a internet ni servidores locales.\",\n  \"categoria\": \"computo_redes\",\n  \"prioridad\": \"alta\",\n  \"reportante\": {\n    \"usuario_id\": \"6710a1b2c3d4e5f607182931\",\n    \"nombre\": \"María López\",\n    \"tipo\": \"docente\",\n    \"correo\": \"m.lopez@utm.example\"\n  },\n  \"ubicacion\": {\n    \"edificio\": \"Edificio A\",\n    \"zona\": \"Laboratorio Robótica\",\n    \"piso\": 2\n  },\n  \"detalle_especifico\": {\n    \"equipo_afectado\": \"Switch Cisco Catalyst 2960\",\n    \"direccion_ip\": \"10.0.20.1\",\n    \"vlan\": 20,\n    \"puerto_uplink\": \"Gi1/0/1\",\n    \"equipos_afectados\": 25\n  },\n  \"tags\": [\"switch\", \"red\", \"robotica\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", ""]
+            },
+            "description": "CU-01 / RF-01: Inserta incidencia adaptando el detalle específico. Genera folio único con Redis INCR."
+          },
+          "response": []
+        },
+        {
+          "name": "CU-01: Registrar Infraestructura (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Filtración pluvial severa en sala de lectura\",\n  \"descripcion\": \"Goteras en el plafón central amenazan el mobiliario y la instalación eléctrica.\",\n  \"categoria\": \"infraestructura\",\n  \"prioridad\": \"critica\",\n  \"reportante\": {\n    \"usuario_id\": \"6710a1b2c3d4e5f607182933\",\n    \"nombre\": \"Ana Pool\",\n    \"tipo\": \"administrativo\",\n    \"correo\": \"a.pool@utm.example\"\n  },\n  \"ubicacion\": {\n    \"edificio\": \"Biblioteca\",\n    \"zona\": \"Sala de lectura\",\n    \"piso\": 1\n  },\n  \"detalle_especifico\": {\n    \"tipo_dano\": \"filtracion\",\n    \"riesgo_seguridad\": true,\n    \"insumos_requeridos\": [\"impermeabilizante\", \"malla reforzada\"],\n    \"contratista\": {\n      \"empresa\": \"Mantenimiento Peninsular S.A.\",\n      \"intervencion\": \"Sellado de losa\"\n    }\n  },\n  \"tags\": [\"gotera\", \"techo\", \"seguridad\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CU-01: Registrar Académico (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Error al asentar calificaciones en portal SIIAU\",\n  \"descripcion\": \"El portal arroja excepción al intentar cerrar el acta final de Estructura de Datos.\",\n  \"categoria\": \"academico\",\n  \"prioridad\": \"alta\",\n  \"reportante\": {\n    \"usuario_id\": \"6710a1b2c3d4e5f607182934\",\n    \"nombre\": \"Pedro Canul\",\n    \"tipo\": \"docente\",\n    \"correo\": \"p.canul@utm.example\"\n  },\n  \"ubicacion\": {\n    \"edificio\": \"Rectoría\",\n    \"zona\": \"Control Escolar\",\n    \"piso\": 1\n  },\n  \"detalle_especifico\": {\n    \"plataforma\": \"SIIAU\",\n    \"codigo_curso\": \"CC200-ED\",\n    \"periodo_escolar\": \"Sep-Dic 2026\",\n    \"estudiantes_impactados\": 34\n  },\n  \"tags\": [\"siiau\", \"actas\", \"calificaciones\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CU-01 / RF-03: Error de Validación Schema (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_reportante}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Falla\",\n  \"descripcion\": \"Corta\",\n  \"categoria\": \"computo_redes\",\n  \"prioridad\": \"baja\",\n  \"reportante\": {\n    \"usuario_id\": \"id_invalido\",\n    \"nombre\": \"A\",\n    \"tipo\": \"invalido\",\n    \"correo\": \"sin_arroba\"\n  },\n  \"ubicacion\": {\n    \"edificio\": \"X\",\n    \"zona\": \"Y\"\n  },\n  \"detalle_especifico\": {\n    \"tipo_dano\": \"categoria_cruzada\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", ""]
+            },
+            "description": "RF-03: Demuestra rechazo con HTTP 400 por validación estricta de esquema BSON."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Consultas y Filtros (RF-11)",
+      "item": [
+        {
+          "name": "Listar con Filtro Compuesto (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/incidencias/?categoria=computo_redes&estado=resuelta&edificio=Biblioteca",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", ""],
+              "query": [
+                {
+                  "key": "categoria",
+                  "value": "computo_redes"
+                },
+                {
+                  "key": "estado",
+                  "value": "resuelta"
+                },
+                {
+                  "key": "edificio",
+                  "value": "Biblioteca"
+                }
+              ]
+            },
+            "description": "Usa el índice compuesto { categoria: 1, estado: 1, 'ubicacion.edificio': 1 }."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Incidencia por Código (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "{{codigo_incidencia}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. CU-02 Evidencias Multimedia (RF-05)",
+      "item": [
+        {
+          "name": "CU-02: Cargar Evidencia ($push)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_archivo\": \"diagnostico_espectro_wifi.png\",\n  \"tipo_mime\": \"image/png\",\n  \"peso_kb\": 640,\n  \"url_storage\": \"incidencias/INC-2026-0001/diagnostico_espectro_wifi.png\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/evidencias",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "{{codigo_incidencia}}", "evidencias"]
+            },
+            "description": "CU-02: Agrega metadatos al arreglo evidencias_adjuntas mediante operación atómica $push."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. CU-03 Estado y Bitácora (RF-06)",
+      "item": [
+        {
+          "name": "CU-03: Actualizar Estado Atómico ($set, $inc, $push)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nuevo_estado\": \"en proceso\",\n  \"horas\": 2.0,\n  \"comentario\": \"Se reinició el switch principal y se verificó el cableado UTP.\",\n  \"tecnico\": \"Carlos Pech\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/INC-2026-0003/estado",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "INC-2026-0003", "estado"]
+            },
+            "description": "CU-03: Actualización en una sola sentencia atómica con $set, $inc y $push."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. CU-04 Etiquetas Dinámicas (RF-07)",
+      "item": [
+        {
+          "name": "CU-04: Agregar Etiquetas ($addToSet)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accion\": \"agregar\",\n  \"tags\": [\"urgente\", \"infraestructura_critica\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/tags",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "{{codigo_incidencia}}", "tags"]
+            },
+            "description": "CU-04: Agrega etiquetas evitando duplicados con $addToSet."
+          },
+          "response": []
+        },
+        {
+          "name": "CU-04: Quitar Etiqueta ($pull)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accion\": \"quitar\",\n  \"tags\": [\"urgente\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/tags",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "{{codigo_incidencia}}", "tags"]
+            },
+            "description": "CU-04: Remueve etiqueta con $pull."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "9. CU-05 Búsqueda Textual (RF-08)",
+      "item": [
+        {
+          "name": "CU-05: Búsqueda Textual por Relevancia (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/incidencias/buscar?q=wifi+acceso",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "buscar"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "wifi+acceso"
+                }
+              ]
+            },
+            "description": "CU-05: Búsqueda MQL con $text y score textScore en español."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. CU-06 Analítica Directiva (RF-09)",
+      "item": [
+        {
+          "name": "CU-06: Analítica Permitida Admin General (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/incidencias/analitica",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "analitica"]
+            },
+            "description": "CU-06 / RF-09: Ejecuta Pipeline 1 (horas por edificio) y Pipeline 2 (top 10 tags)."
+          },
+          "response": []
+        },
+        {
+          "name": "CU-06: Analítica Denegada a Reportante (403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_reportante}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/incidencias/analitica",
+              "host": ["{{base_url}}"],
+              "path": ["incidencias", "analitica"]
+            },
+            "description": "RF-09 Criterio de aceptación: los roles sin permiso reciben HTTP 403 Forbidden."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
