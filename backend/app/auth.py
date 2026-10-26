@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from bson import ObjectId
+from bson.errors import InvalidId
 import bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -75,7 +76,15 @@ async def obtener_usuario_actual(
             detail="Token malformado: falta identificador de usuario.",
         )
 
-    usuario = await db["usuarios"].find_one({"_id": ObjectId(usuario_id)})
+    try:
+        user_oid = ObjectId(usuario_id)
+    except (InvalidId, TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token malformado: identificador de usuario inválido.",
+        )
+
+    usuario = await db["usuarios"].find_one({"_id": user_oid})
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -313,6 +313,42 @@ async def listar_incidencias(
     }
 
 
+# ── Conteos por Estado (para pills del frontend) ──────────────────────────────
+@router.get("/conteos-estado", summary="Conteo de incidencias agrupadas por estado")
+async def conteos_por_estado(
+    categoria: Optional[str] = Query(None),
+    edificio: Optional[str] = Query(None),
+    asignadas_a_mi: bool = Query(False),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    usuario: dict = Depends(obtener_usuario_actual),
+):
+    """
+    Devuelve un objeto { estado: count } con el total de incidencias por estado.
+    No aplica filtro de estado para que los pills del frontend siempre reflejen
+    los conteos reales independientemente del filtro activo.
+    Respeta las mismas restricciones de rol que el endpoint de listado.
+    """
+    filtro: dict = {}
+
+    if usuario.get("rol") == "reportante":
+        filtro["reportante.usuario_id"] = usuario["_id"]
+    elif usuario.get("rol") == "tecnico" and asignadas_a_mi:
+        filtro["tecnico_asignado.usuario_id"] = usuario["_id"]
+
+    if categoria:
+        filtro["categoria"] = categoria
+    if edificio:
+        filtro["ubicacion.edificio"] = edificio
+
+    pipeline = [
+        {"$match": filtro},
+        {"$group": {"_id": "$estado", "count": {"$sum": 1}}},
+    ]
+    cursor = db[COLECCION].aggregate(pipeline)
+    conteos = {doc["_id"]: doc["count"] async for doc in cursor}
+    return conteos
+
+
 # ── Obtener Incidencia por Identificador ──────────────────────────────────────
 @router.get("/{identificador}", summary="Obtener incidencia por ObjectId o código")
 async def obtener_incidencia(
