@@ -1,0 +1,73 @@
+:root {
+  /* ── Colores Institucionales UTM ── */
+  --color-primary: #0B6B4B;
+  --color-primary-hover: #085038;
+  --color-primary-active: #053b29;
+  --color-primary-light: #E3F1EA;
+  --color-primary-border: #9FD0BE;
+
+  /* ── Consola Sysadmin (Acento Índigo/Gris Técnico) ── */
+  --color-sysadmin: #1E293B;
+  --color-sysadmin-accent: #3B82F6;
+  --color-sysadmin-light: #EFF6FF;
+
+  /* ── Superficies y Fondos ── */
+  --bg-app: #FAF9F5;
+  --bg-surface: #FFFFFF;
+  --bg-surface-muted: #F3F5F4;
+  --border-subtle: #E2E8E5;
+  --border-medium: #C4CDC8;
+  --border-strong: #98A59F;
+
+  /* ── Tipografía y Texto ── */
+  --text-main: #15211C;
+  --text-secondary: #526059;
+  --text-tertiary: #84938C;
+  --text-inverse: #FFFFFF;
+
+  /* ── Estados de Incidencia ── */
+  --est-abierta-text: #1E40AF;
+  --est-abierta-bg: #DBEAFE;
+  --est-proceso-text: #92400E;
+  --est-proceso-bg: #FEF3C7;
+  --est-espera-text: #7C2D12;
+  --est-espera-bg: #FFEDD5;
+  --est-resuelta-text: #065F46;
+  --est-resuelta-bg: #D1FAE5;
+  --est-cerrada-text: #374151;
+  --est-cerrada-bg: #E5E7EB;
+
+  /* ── Prioridades ── */
+  --prio-baja-text: #065F46;
+  --prio-baja-bg: #ECFDF5;
+  --prio-media-text: #1E40AF;
+  --prio-media-bg: #EFF6FF;
+  --prio-alta-text: #B45309;
+  --prio-alta-bg: #FFFBEB;
+  --prio-critica-text: #991B1B;
+  --prio-critica-bg: #FEF2F2;
+
+  /* ── Categorías ── */
+  --cat-computo: #2563EB;
+  --cat-infra: #D97706;
+  --cat-academico: #7C3AED;
+
+  /* ── Tipografías ── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* ── Radios y Sombras ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+
+  /* ── Transiciones ── */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}

@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .database import connect_db, close_db
-from .routers import auth, incidencias, usuarios
+from .routers import archivos, auth, incidencias, usuarios
 
 
 @asynccontextmanager
@@ -26,15 +26,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ── Manejador de error para devolver 400 Bad Request en validación (Rúbrica RF-03) ──
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=400,
-        content={"detail": exc.errors()},
-    )
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -43,10 +34,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Errores de validación → HTTP 400 Bad Request ─────────────────────────────
+# FastAPI responde 422 por defecto; el proyecto exige 400 para datos inválidos.
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errores = [
+        {
+            "campo": ".".join(str(p) for p in err.get("loc", []) if p != "body"),
+            "mensaje": err.get("msg"),
+        }
+        for err in exc.errors()
+    ]
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "detail": "Datos inválidos: "
+            + "; ".join(
+                f"{e['campo']}: {e['mensaje']}" if e["campo"] else str(e["mensaje"]).removeprefix("Value error, ")
+                for e in errores
+            ),
+            "errores": errores,
+        },
+    )
+
+
 # ── Registro de Enrutadores ───────────────────────────────────────────────────
 app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(incidencias.router)
+app.include_router(archivos.router)
 
 
 @app.get("/", tags=["health"])

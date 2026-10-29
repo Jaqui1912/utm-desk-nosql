@@ -1,14 +1,17 @@
 import logging
+import re
 from datetime import datetime, timezone
 from typing import Optional
 from bson import ObjectId
 from bson.errors import InvalidId
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import redis.asyncio as aioredis
 from pymongo.errors import WriteError
 
+from .. import storage
+from ..config import settings
 from ..database import get_db, get_redis
 from ..auth import obtener_usuario_actual, requerir_roles
 from ..models.incidencia import (
@@ -18,7 +21,6 @@ from ..models.incidencia import (
     IncidenciaCreate,
     serialize_doc,
 )
-from ..supabase_storage import subir_archivo, MIME_PERMITIDOS
 
 logger = logging.getLogger("utm_desk")
 router = APIRouter(prefix="/incidencias", tags=["incidencias"])
@@ -26,6 +28,7 @@ router = APIRouter(prefix="/incidencias", tags=["incidencias"])
 COLECCION = "incidencias_campus"
 ESTADOS_ABIERTOS = ["abierta", "en proceso", "en espera"]
 MS_POR_HORA = 3_600_000
+MIMES_PERMITIDOS = ["image/jpeg", "image/png", "application/pdf", "video/mp4"]
 
 
 # ── Payload para Asignación de Técnico (RF-13) ────────────────────────────────
@@ -61,19 +64,34 @@ async def _generar_consecutivo_codigo(db: AsyncIOMotorDatabase, redis: Optional[
     anio = datetime.now(timezone.utc).year
     consecutivo: int = 1
 
+    # Mayor consecutivo ya usado en la colección (evita repetir folios si el
+    # contador se reinicia, p. ej. Redis sin persistencia o base recién poblada).
+    ultimo = await db[COLECCION].find_one(
+        {"codigo": {"$regex": f"^INC-{anio}-"}}, {"codigo": 1}, sort=[("codigo", -1)]
+    )
+    maximo_existente = int(ultimo["codigo"].rsplit("-", 1)[1]) if ultimo else 0
+
     if redis is not None:
         try:
             clave_redis = f"contador:incidencias:{anio}"
             consecutivo = await redis.incr(clave_redis)
+            if consecutivo <= maximo_existente:
+                consecutivo = maximo_existente + 1
+                await redis.set(clave_redis, consecutivo)
         except Exception as e:
             logger.warning(f"Falla al ejecutar INCR en Redis: {e}. Usando fallback.")
             redis = None
 
     if redis is None:
+        # Fallback atómico en MongoDB: $max sincroniza con lo existente y $inc reserva el folio.
+        await db["contadores"].update_one(
+            {"_id": f"incidencias_{anio}"},
+            {"$max": {"consecutivo": maximo_existente}},
+            upsert=True,
+        )
         contador = await db["contadores"].find_one_and_update(
             {"_id": f"incidencias_{anio}"},
             {"$inc": {"consecutivo": 1}},
-            upsert=True,
             return_document=True,
         )
         consecutivo = contador.get("consecutivo", 1)
@@ -232,11 +250,7 @@ async def registrar_incidencia(
         "fecha_creacion": ahora,
         "horas_invertidas": 0,
         "tags": list(set(payload.tags)),
-        "detalle_especifico": (
-            payload.detalle_especifico.model_dump(exclude_none=True)
-            if hasattr(payload.detalle_especifico, "model_dump")
-            else payload.detalle_especifico
-        ),
+        "detalle_especifico": payload.detalle_especifico,
         "historial_seguimiento": [],
         "evidencias_adjuntas": [],
     }
@@ -257,7 +271,10 @@ async def registrar_incidencia(
     except WriteError as we:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Fallo en validación de esquema ($jsonSchema de Atlas): {we.details}",
+            detail=(
+                "El documento no cumple el $jsonSchema de MongoDB Atlas: "
+                + str((we.details or {}).get("errmsg", "validación fallida"))
+            ),
         )
     except Exception as e:
         raise HTTPException(
@@ -312,6 +329,42 @@ async def listar_incidencias(
         "limit": limit,
         "incidencias": incidencias,
     }
+
+
+# ── Conteos por Estado (para pills del frontend) ──────────────────────────────
+@router.get("/conteos-estado", summary="Conteo de incidencias agrupadas por estado")
+async def conteos_por_estado(
+    categoria: Optional[str] = Query(None),
+    edificio: Optional[str] = Query(None),
+    asignadas_a_mi: bool = Query(False),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    usuario: dict = Depends(obtener_usuario_actual),
+):
+    """
+    Devuelve un objeto { estado: count } con el total de incidencias por estado.
+    No aplica filtro de estado para que los pills del frontend siempre reflejen
+    los conteos reales independientemente del filtro activo.
+    Respeta las mismas restricciones de rol que el endpoint de listado.
+    """
+    filtro: dict = {}
+
+    if usuario.get("rol") == "reportante":
+        filtro["reportante.usuario_id"] = usuario["_id"]
+    elif usuario.get("rol") == "tecnico" and asignadas_a_mi:
+        filtro["tecnico_asignado.usuario_id"] = usuario["_id"]
+
+    if categoria:
+        filtro["categoria"] = categoria
+    if edificio:
+        filtro["ubicacion.edificio"] = edificio
+
+    pipeline = [
+        {"$match": filtro},
+        {"$group": {"_id": "$estado", "count": {"$sum": 1}}},
+    ]
+    cursor = db[COLECCION].aggregate(pipeline)
+    conteos = {doc["_id"]: doc["count"] async for doc in cursor}
+    return conteos
 
 
 # ── Obtener Incidencia por Identificador ──────────────────────────────────────
@@ -382,63 +435,26 @@ async def asignar_tecnico(
 @router.post("/{identificador}/evidencias", summary="CU-02 / RF-05 – Cargar evidencia multimedia")
 async def cargar_evidencia(
     identificador: str,
-    archivo: UploadFile = File(..., description="Archivo a adjuntar (JPG, PNG, PDF, MP4)"),
+    payload: CargarEvidencia,
     db: AsyncIOMotorDatabase = Depends(get_db),
     usuario: dict = Depends(requerir_roles(["reportante", "tecnico", "admin_general"])),
 ):
     """
-    CU-02 / RF-05: Sube el archivo a Supabase Storage y registra sus metadatos
-    en evidencias_adjuntas con $push. Si Supabase no está configurado, guarda
-    solo metadatos (modo degradado).
-
-    - Permitido para reportante (solo en sus propias incidencias), técnico y admin_general.
-    - Tipos MIME permitidos: image/jpeg, image/png, application/pdf, video/mp4.
+    CU-02 / RF-05: Asocia metadatos de evidencias multimedia al arreglo evidencias_adjuntas con $push.
+    Permitido para reportante, técnico y administrador general.
     """
     doc_inc = await _obtener_incidencia_or_404(db, identificador)
-    codigo_incidencia = doc_inc.get("codigo", identificador)
 
     # Si es reportante, verificar que sea el dueño de la incidencia
     if usuario.get("rol") == "reportante" and doc_inc.get("reportante", {}).get("usuario_id") != usuario["_id"]:
         raise HTTPException(status_code=403, detail="No tienes permiso para adjuntar evidencias en esta incidencia.")
 
-    # Validar tipo MIME contra la lista permitida
-    tipo_mime = archivo.content_type or ""
-    if tipo_mime not in MIME_PERMITIDOS:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Tipo de archivo '{tipo_mime}' no permitido. "
-                f"Tipos aceptados: {', '.join(sorted(MIME_PERMITIDOS))}"
-            ),
-        )
-
-    # Leer bytes del archivo
-    contenido = await archivo.read()
-    peso_kb = round(len(contenido) / 1024, 2)
-
-    # Subir a Supabase Storage (retorna URL pública o None si no está configurado)
-    try:
-        url_publica = await subir_archivo(
-            contenido=contenido,
-            nombre_archivo=archivo.filename,
-            tipo_mime=tipo_mime,
-            carpeta=codigo_incidencia,
-        )
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-    except RuntimeError as re:
-        raise HTTPException(status_code=502, detail=f"Error al subir archivo a Storage: {str(re)}")
-
-    # Si Supabase no está configurado, construir ruta simulada
-    if url_publica is None:
-        url_publica = f"incidencias/{codigo_incidencia}/{archivo.filename}"
-
     filtro = _construir_filtro_identificador(identificador)
     nueva_evidencia = {
-        "nombre_archivo": archivo.filename,
-        "tipo_mime": tipo_mime,
-        "peso_kb": peso_kb,
-        "url_storage": url_publica,
+        "nombre_archivo": payload.nombre_archivo,
+        "tipo_mime": payload.tipo_mime,
+        "peso_kb": payload.peso_kb,
+        "url_storage": payload.url_storage,
         "fecha_carga": datetime.now(timezone.utc),
     }
 
@@ -451,6 +467,97 @@ async def cargar_evidencia(
 
     doc_actualizado = await _obtener_incidencia_or_404(db, identificador)
     return serialize_doc(doc_actualizado)
+
+
+# ── CU-02: Subir archivo de evidencia a Cloud Storage (RF-05) ─────────────────
+@router.post(
+    "/{identificador}/evidencias/archivo",
+    status_code=status.HTTP_201_CREATED,
+    summary="CU-02 / RF-05 – Subir archivo de evidencia al bucket y registrar metadatos",
+)
+async def subir_evidencia(
+    identificador: str,
+    archivo: UploadFile = File(..., description="Imagen (JPG/PNG), PDF o video MP4"),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    usuario: dict = Depends(requerir_roles(["reportante", "tecnico", "admin_general"])),
+):
+    """
+    1. Sube el archivo físico a Supabase Storage (o a la carpeta local en desarrollo).
+    2. Registra solo los metadatos en evidencias_adjuntas con $push.
+    El binario nunca se guarda en MongoDB (límite de 512 MB de la capa M0).
+    """
+    doc_inc = await _obtener_incidencia_or_404(db, identificador)
+    if usuario.get("rol") == "reportante" and doc_inc.get("reportante", {}).get("usuario_id") != usuario["_id"]:
+        raise HTTPException(status_code=403, detail="No tienes permiso para adjuntar evidencias en esta incidencia.")
+
+    tipo_mime = archivo.content_type or ""
+    if tipo_mime not in MIMES_PERMITIDOS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo de archivo no permitido ({tipo_mime or 'desconocido'}). Usa JPG, PNG, PDF o MP4.",
+        )
+
+    contenido = await archivo.read()
+    if not contenido:
+        raise HTTPException(status_code=400, detail="El archivo está vacío.")
+    if len(contenido) > settings.evidencia_max_mb * 1024 * 1024:
+        raise HTTPException(status_code=400, detail=f"El archivo supera el máximo de {settings.evidencia_max_mb} MB.")
+
+    nombre_limpio = re.sub(r"[^A-Za-z0-9._-]+", "_", archivo.filename or "evidencia")[:80]
+    ahora = datetime.now(timezone.utc)
+    ruta = f"incidencias/{doc_inc['codigo']}/{ahora:%Y%m%d%H%M%S}_{nombre_limpio}"
+
+    try:
+        await storage.subir_archivo(ruta, contenido, tipo_mime)
+    except Exception as e:
+        logger.error(f"Error al subir evidencia: {e}")
+        raise HTTPException(status_code=502, detail="No se pudo subir el archivo al almacenamiento externo.")
+
+    nueva_evidencia = {
+        "nombre_archivo": nombre_limpio,
+        "tipo_mime": tipo_mime,
+        "peso_kb": max(1, round(len(contenido) / 1024)),
+        "url_storage": ruta,
+        "fecha_carga": ahora,
+    }
+    try:
+        await db[COLECCION].update_one(
+            {"_id": doc_inc["_id"]}, {"$push": {"evidencias_adjuntas": nueva_evidencia}}
+        )
+    except WriteError as we:
+        raise HTTPException(status_code=400, detail=f"Error de validación de evidencia: {we.details}")
+
+    doc_actualizado = await _obtener_incidencia_or_404(db, identificador)
+    return serialize_doc(doc_actualizado)
+
+
+# ── CU-02: URL firmada temporal para ver una evidencia ────────────────────────
+@router.get("/{identificador}/evidencias/{indice}/url", summary="CU-02 – Generar URL firmada de una evidencia")
+async def url_evidencia(
+    identificador: str,
+    indice: int,
+    request: Request,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    usuario: dict = Depends(obtener_usuario_actual),
+):
+    """Genera un enlace de acceso temporal (10 minutos) al archivo guardado en el bucket."""
+    doc = await _obtener_incidencia_or_404(db, identificador)
+    if usuario.get("rol") == "reportante" and doc.get("reportante", {}).get("usuario_id") != usuario["_id"]:
+        raise HTTPException(status_code=403, detail="Acceso restringido a expedientes propios.")
+
+    evidencias = doc.get("evidencias_adjuntas", [])
+    if indice < 0 or indice >= len(evidencias):
+        raise HTTPException(status_code=404, detail="Evidencia no encontrada.")
+
+    ruta = evidencias[indice].get("url_storage", "")
+    try:
+        url = await storage.generar_url_firmada(ruta, str(request.base_url))
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="El archivo no está en el almacenamiento (las evidencias de ejemplo solo tienen metadatos).",
+        )
+    return {"url": url, "expira_en_segundos": settings.url_firmada_segundos}
 
 
 # ── CU-03: Actualizar Estado y Bitácora Atómica (RF-06) ────────────────────────

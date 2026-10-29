@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from bson import ObjectId
+from bson.errors import InvalidId
 import bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -11,6 +12,8 @@ from .config import settings
 from .database import get_db
 
 security = HTTPBearer(auto_error=False)
+
+ROL_SUPER_ADMIN = "superAdmin"
 
 
 def verificar_password(plain_password: str, hashed_password: str) -> bool:
@@ -75,7 +78,15 @@ async def obtener_usuario_actual(
             detail="Token malformado: falta identificador de usuario.",
         )
 
-    usuario = await db["usuarios"].find_one({"_id": ObjectId(usuario_id)})
+    try:
+        user_oid = ObjectId(usuario_id)
+    except (InvalidId, TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token malformado: identificador de usuario inválido.",
+        )
+
+    usuario = await db["usuarios"].find_one({"_id": user_oid})
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -100,7 +111,8 @@ def requerir_roles(roles_permitidos: list[str]):
     """
     async def validador_rol(usuario_actual: dict = Depends(obtener_usuario_actual)) -> dict:
         rol_usuario = usuario_actual.get("rol")
-        if rol_usuario not in roles_permitidos:
+        # El superAdmin (cuenta de evaluación del docente) tiene acceso a todas las operaciones.
+        if rol_usuario not in roles_permitidos and rol_usuario != ROL_SUPER_ADMIN:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(

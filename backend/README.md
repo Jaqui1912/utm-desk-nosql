@@ -28,7 +28,10 @@ API REST desarrollada con **FastAPI**, **Motor** (driver asíncrono oficial de M
 | **RF-14** | `/usuarios/{id}/estado` | `PATCH` | `admin_sistema` | `$set: { activo }` | Activar o desactivar cuenta de usuario. |
 | **RF-13** | `/incidencias/{id}/asignar-tecnico` | `PATCH` | `admin_general` | `$set: { tecnico_asignado }` | Asignación de técnico responsable (403 para otros roles). |
 | **CU-01 / RF-01** | `/incidencias/` | `POST` | `reportante`, `admin_general` | `insertOne` + `$jsonSchema` + Redis `INCR` | Alta polimórfica con folio único `INC-YYYY-XXXX` (201 Created). |
-| **CU-02 / RF-05** | `/incidencias/{id}/evidencias` | `POST` | `reportante`, `tecnico`, `admin_general` | `$push` | Registro de metadatos de evidencias multimedia. |
+| **CU-02 / RF-05** | `/incidencias/{id}/evidencias/archivo` | `POST` | `reportante`, `tecnico`, `admin_general` | Supabase Storage + `$push` | Sube el archivo al bucket y guarda solo sus metadatos (201 Created). |
+| **CU-02** | `/incidencias/{id}/evidencias/{indice}/url` | `GET` | Autenticado | URL firmada | Enlace temporal (10 min) para ver la evidencia. |
+| **CU-02 / RF-05** | `/incidencias/{id}/evidencias` | `POST` | `reportante`, `tecnico`, `admin_general` | `$push` | Registro manual de metadatos (para pruebas en Postman). |
+| **RF-13** | `/usuarios/tecnicos` | `GET` | `admin_general` | `find` | Técnicos activos para asignación. |
 | **CU-03 / RF-06** | `/incidencias/{id}/estado` | `PATCH` | `tecnico`, `admin_general` | `$set`, `$inc`, `$push` | Actualización atómica de estado, horas y bitácora. |
 | **CU-04 / RF-07** | `/incidencias/{id}/tags` | `PATCH` | `tecnico`, `admin_general` | `$addToSet` / `$pull` | Gestión dinámica de etiquetas técnicas sin duplicados. |
 | **CU-05 / RF-08** | `/incidencias/buscar` | `GET` | Todos autenticados | `$text: { $search }` + `$meta: "textScore"` | Búsqueda textual ponderada en español (reportante ve solo las suyas). |
@@ -39,7 +42,9 @@ API REST desarrollada con **FastAPI**, **Motor** (driver asíncrono oficial de M
 
 ## 👥 Matriz de Roles y Credenciales de Prueba
 
-Todos los usuarios del dataset de prueba comparten la contraseña: **`Utm2026!`**
+Todos los usuarios del dataset de prueba comparten la contraseña **`Utm2026!`**, excepto la cuenta superAdmin.
+
+Los errores de validación de datos responden **HTTP 400 Bad Request** (no 422).
 
 | Rol | Correo de Prueba | Permisos Destacados |
 |---|---|---|
@@ -49,6 +54,7 @@ Todos los usuarios del dataset de prueba comparten la contraseña: **`Utm2026!`*
 | **Directivo** | `r.cetina@utm.example` | Acceso de solo lectura al catálogo completo y a la analítica directiva. |
 | **Reportante (Docente)** | `m.lopez@utm.example` | Levantar incidencias, consultar solo sus propias incidencias y cargar evidencias. |
 | **Reportante (Desactivado)** | `m.dzul@utm.example` | Usuario inactivo para validar rechazo HTTP 401 en inicio de sesión. |
+| **superAdmin (docente)** | `lizandro.reyes@utmetropolitana.edu.mx` | Contraseña `lizandro_2026`. Acceso total a todas las operaciones. |
 
 ---
 

@@ -45,7 +45,12 @@ USUARIOS = {
     "diana":    ("6710a1b2c3d4e5f607182947", "Diana Euán",    "d.euan@utm.example",    "tecnico", ["academico", "computo_redes"]),
     # Usuario desactivado (para probar que no puede iniciar sesión)
     "mario":    ("6710a1b2c3d4e5f607182937", "Mario Dzul",    "m.dzul@utm.example",    "reportante", "docente"),
+    # Cuenta de evaluación solicitada por el docente (rol superAdmin, acceso total)
+    "lizandro": ("6710a1b2c3d4e5f607182950", "lizandro.reyes", "lizandro.reyes@utmetropolitana.edu.mx", "superAdmin", None),
 }
+
+# Contraseñas distintas a la de demostración
+PASSWORDS_ESPECIALES = {"lizandro": "lizandro_2026"}
 
 
 def construir_usuarios(ahora):
@@ -53,12 +58,12 @@ def construir_usuarios(ahora):
         import bcrypt
     except ImportError:
         sys.exit("Falta la librería bcrypt. Instálala con:  pip install bcrypt")
-    hash_demo = lambda: bcrypt.hashpw(DEMO_PASSWORD.encode(), bcrypt.gensalt(rounds=12)).decode()
+    hash_demo = lambda pw=DEMO_PASSWORD: bcrypt.hashpw(pw.encode(), bcrypt.gensalt(rounds=12)).decode()
     docs = {}
     for clave, (oid, nombre, correo, rol, extra) in USUARIOS.items():
         d = {
             "_id": ObjectId(oid), "nombre": nombre, "correo": correo,
-            "password_hash": hash_demo(), "rol": rol,
+            "password_hash": hash_demo(PASSWORDS_ESPECIALES.get(clave, DEMO_PASSWORD)), "rol": rol,
             "activo": clave != "mario",
             "fecha_alta": ahora - timedelta(days=40),
         }

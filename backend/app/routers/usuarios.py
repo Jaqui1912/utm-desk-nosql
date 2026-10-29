@@ -13,7 +13,7 @@ from ..models.incidencia import CategoriaEnum, TipoReportanteEnum
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
-RolEnum = Literal["reportante", "admin_general", "tecnico", "directivo", "admin_sistema"]
+RolEnum = Literal["reportante", "admin_general", "tecnico", "directivo", "admin_sistema", "superAdmin"]
 
 
 class UsuarioCreate(BaseModel):
@@ -52,6 +52,23 @@ async def listar_usuarios(
     cursor = db["usuarios"].find().sort([("fecha_alta", -1)])
     usuarios = [_serializar_usuario(u) async for u in cursor]
     return {"total": len(usuarios), "usuarios": usuarios}
+
+
+# ── RF-13: Técnicos activos (para asignar incidencias) ────────────────────────
+@router.get("/tecnicos", summary="RF-13 – Listar técnicos activos para asignación")
+async def listar_tecnicos(
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    admin: dict = Depends(requerir_roles(["admin_general"])),
+):
+    """Devuelve solo nombre y especialidades de los técnicos activos (sin datos sensibles)."""
+    cursor = db["usuarios"].find(
+        {"rol": "tecnico", "activo": True}, {"nombre": 1, "especialidades": 1}
+    ).sort([("nombre", 1)])
+    tecnicos = [
+        {"id": str(u["_id"]), "nombre": u.get("nombre"), "especialidades": u.get("especialidades", [])}
+        async for u in cursor
+    ]
+    return {"total": len(tecnicos), "tecnicos": tecnicos}
 
 
 # ── RF-14: Crear Usuario (Solo admin_sistema) ─────────────────────────────────
