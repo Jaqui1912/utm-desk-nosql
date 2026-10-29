@@ -51,6 +51,7 @@ const ROL_LABELS = {
   admin_general: 'Administrador General',
   directivo: 'Directivo',
   admin_sistema: 'Admin. del Sistema',
+  superAdmin: 'Super Administrador',
 };
 
 const rolLabel = computed(() => ROL_LABELS[auth.rol] || auth.rol);
@@ -73,6 +74,12 @@ const NAV_POR_ROL = {
     { to: '/analitica', label: 'Analítica' },
   ],
   admin_sistema: [
+    { to: '/sysadmin/usuarios', label: 'Usuarios' },
+  ],
+  superAdmin: [
+    { to: '/incidencias', label: 'Incidencias' },
+    { to: '/incidencias/nueva', label: 'Nueva Incidencia' },
+    { to: '/analitica', label: 'Analítica' },
     { to: '/sysadmin/usuarios', label: 'Usuarios' },
   ],
 };

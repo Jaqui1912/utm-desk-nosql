@@ -70,6 +70,25 @@ export const incidenciasApi = {
   },
 
   /**
+   * CU-02: POST /incidencias/:id/evidencias/archivo — sube el archivo al bucket (multipart)
+   */
+  subirEvidencia(id, archivo) {
+    const datos = new FormData();
+    datos.append('archivo', archivo);
+    return api.post(`${BASE}/${id}/evidencias/archivo`, datos, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+  },
+
+  /**
+   * CU-02: GET /incidencias/:id/evidencias/:indice/url — URL firmada temporal
+   */
+  urlEvidencia(id, indice) {
+    return api.get(`${BASE}/${id}/evidencias/${indice}/url`);
+  },
+
+  /**
    * CU-04: PATCH /incidencias/:id/tags — gestionar etiquetas
    */
   gestionarTags(id, accion, tags) {

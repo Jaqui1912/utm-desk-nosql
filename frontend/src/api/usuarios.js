@@ -11,6 +11,13 @@ export const usuariosApi = {
   },
 
   /**
+   * RF-13: GET /usuarios/tecnicos — técnicos activos para asignación (admin_general)
+   */
+  tecnicos() {
+    return api.get(BASE + '/tecnicos');
+  },
+
+  /**
    * RF-14: POST /usuarios/ — Registrar usuario con rol
    */
   crear(payload) {

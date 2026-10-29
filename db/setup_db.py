@@ -18,7 +18,7 @@ COL_USUARIOS = "usuarios"
 CATEGORIAS = ["computo_redes", "infraestructura", "academico"]
 ESTADOS = ["abierta", "en proceso", "en espera", "resuelta", "cerrada"]
 PRIORIDADES = ["baja", "media", "alta", "critica"]
-ROLES = ["reportante", "admin_general", "tecnico", "directivo", "admin_sistema"]
+ROLES = ["reportante", "admin_general", "tecnico", "directivo", "admin_sistema", "superAdmin"]
 TIPOS_REPORTANTE = ["docente", "estudiante", "administrativo"]
 TIPOS_MIME = ["image/jpeg", "image/png", "application/pdf", "video/mp4"]
 NUMERO = ["double", "int"]          
@@ -238,6 +238,7 @@ def crear_indices(db):
         default_language="spanish",
         name="txt_titulo_descripcion",
     )
+    inc.create_index("codigo", unique=True, name="uniq_codigo")
     db[COL_USUARIOS].create_index("correo", unique=True, name="uniq_correo")
  
  

@@ -13,6 +13,8 @@ from .database import get_db
 
 security = HTTPBearer(auto_error=False)
 
+ROL_SUPER_ADMIN = "superAdmin"
+
 
 def verificar_password(plain_password: str, hashed_password: str) -> bool:
     try:
@@ -109,7 +111,8 @@ def requerir_roles(roles_permitidos: list[str]):
     """
     async def validador_rol(usuario_actual: dict = Depends(obtener_usuario_actual)) -> dict:
         rol_usuario = usuario_actual.get("rol")
-        if rol_usuario not in roles_permitidos:
+        # El superAdmin (cuenta de evaluación del docente) tiene acceso a todas las operaciones.
+        if rol_usuario not in roles_permitidos and rol_usuario != ROL_SUPER_ADMIN:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(

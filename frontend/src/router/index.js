@@ -118,7 +118,7 @@ router.beforeEach(async (to, from) => {
   }
 
   // 3. Verificación de Roles (RBAC)
-  if (requiresAuth && allowedRoles && !allowedRoles.includes(auth.rol)) {
+  if (requiresAuth && allowedRoles && !allowedRoles.includes(auth.rol) && !auth.isSuperAdmin) {
     // Si un sysadmin entra a una vista que no le compete, enviarlo a su consola
     if (auth.isSysadmin) {
       return { name: 'sysadmin-usuarios' };

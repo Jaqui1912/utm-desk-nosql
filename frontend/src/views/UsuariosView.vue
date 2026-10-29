@@ -21,8 +21,11 @@
         <div class="nav-user-area">
           <div class="sys-user-badge">
             <span class="user-pill">{{ auth.nombre }}</span>
-            <span class="role-pill">admin_sistema</span>
+            <span class="role-pill">{{ auth.rol }}</span>
           </div>
+          <router-link v-if="auth.isSuperAdmin" to="/incidencias" class="btn btn-xs back-incidencias">
+            ← Incidencias
+          </router-link>
           <button @click="handleLogout" class="btn btn-outline-danger btn-xs">
             Cerrar Consola
           </button>
@@ -106,6 +109,7 @@
                 <option value="admin_general">Administrador General</option>
                 <option value="directivo">Directivo (Lectura analítica)</option>
                 <option value="admin_sistema">Administrador del Sistema (Consola)</option>
+                <option value="superAdmin">Super Administrador (acceso total)</option>
               </select>
             </div>
 
@@ -249,6 +253,7 @@ function formatRol(r) {
     admin_general: 'Admin General',
     directivo: 'Directivo',
     admin_sistema: 'Admin Sistema',
+    superAdmin: 'Super Admin',
   };
   return map[r] || r;
 }
@@ -692,5 +697,14 @@ onMounted(cargarUsuarios);
   .sys-grid {
     grid-template-columns: 1fr;
   }
+}
+.back-incidencias {
+  color: #CBD5E1;
+  border: 1px solid #334155;
+  text-decoration: none;
+}
+.back-incidencias:hover {
+  color: #FFFFFF;
+  border-color: #64748B;
 }
 </style>

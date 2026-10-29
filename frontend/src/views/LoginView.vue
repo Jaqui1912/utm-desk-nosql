@@ -133,14 +133,14 @@ const router = useRouter();
 const auth = useAuthStore();
 
 const correo = ref('');
-const password = ref('Utm2026!');
+const password = ref('');
 
 const demoUsers = [
   { id: 'maria',   nombre: 'María López',    correo: 'm.lopez@utm.example',  rolLabel: 'Reportante',              badgeClass: 'badge-reportante' },
-  { id: 'patricia',nombre: 'Patricia Ek',    correo: 'p.ek@utm.example',     rolLabel: 'Administrador General',   badgeClass: 'badge-admin' },
+  { id: 'laura',   nombre: 'Laura Medina',   correo: 'l.medina@utm.example', rolLabel: 'Administrador General',   badgeClass: 'badge-admin' },
   { id: 'carlos',  nombre: 'Carlos Pech',    correo: 'c.pech@utm.example',   rolLabel: 'Técnico',                 badgeClass: 'badge-tecnico' },
-  { id: 'roberto', nombre: 'Roberto Dzib',   correo: 'r.dzib@utm.example',   rolLabel: 'Directivo',               badgeClass: 'badge-directivo' },
-  { id: 'daniel',  nombre: 'Daniel May',     correo: 'd.may@utm.example',    rolLabel: 'Administrador del Sistema',badgeClass: 'badge-sysadmin' },
+  { id: 'roberto', nombre: 'Roberto Cetina', correo: 'r.cetina@utm.example', rolLabel: 'Directivo',               badgeClass: 'badge-directivo' },
+  { id: 'soporte', nombre: 'Soporte UTM Desk', correo: 'soporte@utm.example', rolLabel: 'Administrador del Sistema',badgeClass: 'badge-sysadmin' },
 ];
 
 async function handleLogin() {

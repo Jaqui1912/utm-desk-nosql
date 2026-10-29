@@ -45,11 +45,6 @@
             </div>
           </div>
 
-          <div class="header-actions">
-            <button @click="showJson = !showJson" class="btn btn-secondary btn-sm">
-              {{ showJson ? 'Ocultar documento BSON' : '{ } Ver documento BSON' }}
-            </button>
-          </div>
         </div>
       </div>
 
@@ -63,15 +58,6 @@
           Resolución registrada el {{ formatDateTime(incidencia.fecha_resolucion) }}.
           MongoDB Atlas depurará automáticamente este documento una vez transcurridos 60 días naturales.
         </div>
-      </div>
-
-      <!-- ── Visor de Documento JSON / BSON Modal o Expandible ── -->
-      <div v-if="showJson" class="bson-panel">
-        <div class="bson-header">
-          <span class="bson-title">db.incidencias_campus.findOne({ codigo: "{{ incidencia.codigo }}" })</span>
-          <button @click="showJson = false" class="close-btn">×</button>
-        </div>
-        <pre class="bson-content"><code>{{ JSON.stringify(incidencia, null, 2) }}</code></pre>
       </div>
 
       <!-- ── Contenido en 2 Columnas ── -->
@@ -283,15 +269,19 @@
                     {{ ev.tipo_mime }} · {{ ev.peso_kb }} KB · {{ formatDate(ev.fecha_carga) }}
                   </span>
                 </div>
-                <a
-                  :href="ev.url_storage"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
                   class="btn btn-secondary btn-sm"
+                  :disabled="abriendoEvidencia === idx"
+                  @click="abrirEvidencia(idx)"
                 >
-                  Ver archivo ↗
-                </a>
+                  {{ abriendoEvidencia === idx ? 'Generando enlace…' : 'Ver archivo ↗' }}
+                </button>
               </div>
+            </div>
+
+            <div v-if="evidenciaError && !canEvidencias" class="error-banner-inline">
+              {{ evidenciaError }}
             </div>
 
             <!-- Formulario para adjuntar evidencia -->
@@ -303,57 +293,31 @@
               </div>
 
               <form @submit.prevent="handleAdjuntarEvidencia" class="evidencia-form">
-                <div class="field-grid-3">
-                  <div class="field">
-                    <label>Nombre del archivo</label>
-                    <input
-                      v-model="formEvidencia.nombre_archivo"
-                      type="text"
-                      class="input-field"
-                      placeholder="foto_switch_danado.jpg"
-                      required
-                    />
-                  </div>
-                  <div class="field">
-                    <label>Tipo MIME</label>
-                    <select v-model="formEvidencia.tipo_mime" class="input-field" required>
-                      <option value="image/jpeg">image/jpeg</option>
-                      <option value="image/png">image/png</option>
-                      <option value="application/pdf">application/pdf</option>
-                      <option value="video/mp4">video/mp4</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label>Tamaño (KB)</label>
-                    <input
-                      v-model.number="formEvidencia.peso_kb"
-                      type="number"
-                      min="1"
-                      class="input-field"
-                      placeholder="1024"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="field">
-                  <label>URL Storage (Supabase / S3)</label>
+                <label class="file-drop" :class="{ 'has-file': archivoSeleccionado }">
                   <input
-                    v-model="formEvidencia.url_storage"
-                    type="url"
-                    class="input-field"
-                    placeholder="https://storage.utm.example/incidencias/foto_switch_danado.jpg"
-                    required
+                    ref="inputArchivo"
+                    type="file"
+                    accept="image/jpeg,image/png,application/pdf,video/mp4"
+                    class="file-input"
+                    @change="onArchivoSeleccionado"
                   />
-                </div>
+                  <span v-if="!archivoSeleccionado" class="file-drop-text">
+                    <strong>Selecciona una imagen, PDF o video</strong>
+                    <span>JPG, PNG, PDF o MP4 · máximo 5 MB</span>
+                  </span>
+                  <span v-else class="file-drop-text">
+                    <strong>{{ archivoSeleccionado.name }}</strong>
+                    <span>{{ archivoSeleccionado.type || 'tipo desconocido' }} · {{ Math.max(1, Math.round(archivoSeleccionado.size / 1024)) }} KB</span>
+                  </span>
+                </label>
 
                 <button
                   type="submit"
-                  class="btn btn-secondary btn-sm"
-                  :disabled="uploadingEvidencia"
+                  class="btn btn-primary btn-sm"
+                  :disabled="!archivoSeleccionado || uploadingEvidencia"
                 >
-                  <span v-if="uploadingEvidencia">Adjuntando…</span>
-                  <span v-else>+ Registrar Evidencia</span>
+                  <span v-if="uploadingEvidencia">Subiendo archivo…</span>
+                  <span v-else>Subir evidencia</span>
                 </button>
               </form>
             </div>
@@ -372,7 +336,7 @@
               <span class="meta-label">Reportante</span>
               <div class="meta-val-box">
                 <span class="meta-val-bold">{{ incidencia.reportante?.nombre }}</span>
-                <span class="meta-sub">{{ incidencia.reportante?.correo }} ({{ incidencia.reportante?.tipo }})</span>
+                <span class="meta-sub">{{ incidencia.reportante?.correo }} · {{ cap(incidencia.reportante?.tipo) }}</span>
               </div>
             </div>
 
@@ -416,11 +380,11 @@
               <select v-model="selectedTecnicoId" class="input-field" required>
                 <option value="">Selecciona un técnico...</option>
                 <option
-                  v-for="t in TECNICOS_DEFAULT"
+                  v-for="t in tecnicos"
                   :key="t.id"
                   :value="t.id"
                 >
-                  {{ t.nombre }} ({{ t.especialidad }})
+                  {{ t.nombre }} ({{ (t.especialidades || []).map(catLabel).join(', ') || 'General' }})
                 </option>
               </select>
 
@@ -493,6 +457,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import incidenciasApi from '../api/incidencias';
+import usuariosApi from '../api/usuarios';
 import AppNavbar from '../components/AppNavbar.vue';
 
 const route = useRoute();
@@ -501,7 +466,6 @@ const auth = useAuthStore();
 const loading = ref(true);
 const error = ref('');
 const incidencia = ref(null);
-const showJson = ref(false);
 
 // Operaciones en curso
 const updatingState = ref(false);
@@ -518,22 +482,16 @@ const formAvance = ref({
   comentario: '',
 });
 
-const formEvidencia = ref({
-  nombre_archivo: '',
-  tipo_mime: 'image/jpeg',
-  peso_kb: 512,
-  url_storage: '',
-});
+const archivoSeleccionado = ref(null);
+const inputArchivo = ref(null);
+const abriendoEvidencia = ref(null);
+const MAX_MB = 5;
 
 const nuevoTagInput = ref('');
 const selectedTecnicoId = ref('');
 
-// Lista de técnicos del sistema
-const TECNICOS_DEFAULT = [
-  { id: '6710a1b2c3d4e5f607182945', nombre: 'Carlos Pech', especialidad: 'Cómputo e Infraestructura' },
-  { id: '6710a1b2c3d4e5f607182946', nombre: 'Jorge Cauich', especialidad: 'Infraestructura Física' },
-  { id: '6710a1b2c3d4e5f607182947', nombre: 'Diana Euán', especialidad: 'Académico y Cómputo' },
-];
+// Técnicos activos (se cargan desde la API para el Administrador General)
+const tecnicos = ref([]);
 
 // Permisos
 const canActualizar = computed(() => auth.can('actualizar_estado'));
@@ -649,25 +607,49 @@ async function handleAsignarTecnico() {
   }
 }
 
-// CU-02: Adjuntar Evidencia
+// CU-02: Adjuntar Evidencia (archivo real → Cloud Storage + $push de metadatos)
+function onArchivoSeleccionado(e) {
+  evidenciaError.value = '';
+  const archivo = e.target.files?.[0] || null;
+  if (archivo && archivo.size > MAX_MB * 1024 * 1024) {
+    evidenciaError.value = `El archivo supera el máximo de ${MAX_MB} MB.`;
+    e.target.value = '';
+    archivoSeleccionado.value = null;
+    return;
+  }
+  archivoSeleccionado.value = archivo;
+}
+
 async function handleAdjuntarEvidencia() {
+  if (!archivoSeleccionado.value) return;
   evidenciaError.value = '';
   uploadingEvidencia.value = true;
   try {
-    const payload = {
-      nombre_archivo: formEvidencia.value.nombre_archivo.trim(),
-      tipo_mime: formEvidencia.value.tipo_mime,
-      peso_kb: Number(formEvidencia.value.peso_kb),
-      url_storage: formEvidencia.value.url_storage.trim(),
-    };
-    const res = await incidenciasApi.cargarEvidencia(incidencia.value._id || incidencia.value.id, payload);
+    const res = await incidenciasApi.subirEvidencia(incidencia.value._id || incidencia.value.id, archivoSeleccionado.value);
     incidencia.value = res.data;
-    formEvidencia.value.nombre_archivo = '';
-    formEvidencia.value.url_storage = '';
+    archivoSeleccionado.value = null;
+    if (inputArchivo.value) inputArchivo.value.value = '';
   } catch (err) {
-    evidenciaError.value = err.response?.data?.detail || err.message || 'Error al adjuntar evidencia.';
+    evidenciaError.value = err.response?.data?.detail || err.message || 'Error al subir la evidencia.';
   } finally {
     uploadingEvidencia.value = false;
+  }
+}
+
+// CU-02: Ver evidencia con URL firmada de vigencia limitada
+async function abrirEvidencia(idx) {
+  evidenciaError.value = '';
+  abriendoEvidencia.value = idx;
+  const ventana = window.open('', '_blank');
+  try {
+    const res = await incidenciasApi.urlEvidencia(incidencia.value._id || incidencia.value.id, idx);
+    if (ventana) ventana.location.href = res.data.url;
+    else window.location.href = res.data.url;
+  } catch (err) {
+    if (ventana) ventana.close();
+    evidenciaError.value = err.response?.data?.detail || 'No se pudo generar el enlace del archivo.';
+  } finally {
+    abriendoEvidencia.value = null;
   }
 }
 
@@ -693,7 +675,20 @@ async function handleEliminarTag(tag) {
   }
 }
 
-onMounted(cargarExpediente);
+async function cargarTecnicos() {
+  if (!auth.can('asignar')) return;
+  try {
+    const res = await usuariosApi.tecnicos();
+    tecnicos.value = res.data.tecnicos || [];
+  } catch (err) {
+    assignError.value = 'No se pudo cargar la lista de técnicos.';
+  }
+}
+
+onMounted(() => {
+  cargarExpediente();
+  cargarTecnicos();
+});
 </script>
 
 <style scoped>
@@ -772,36 +767,7 @@ onMounted(cargarExpediente);
   align-items: center;
 }
 
-/* BSON Panel */
-.bson-panel {
-  background: #0F172A;
-  border: 1px solid #1E293B;
-  border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  color: #38BDF8;
-}
-.bson-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.65rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: #94A3B8;
-}
-.close-btn {
-  color: #94A3B8;
-  font-size: 1.1rem;
-}
-.close-btn:hover { color: #fff; }
-.bson-content {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1.45;
-  color: #A5F3FC;
-  max-height: 400px;
-  overflow: auto;
-}
+
 
 /* Grid de Contenido */
 .exp-grid {
@@ -1140,5 +1106,65 @@ onMounted(cargarExpediente);
   .exp-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Campos de formularios del expediente */
+.update-form .field,
+.evidencia-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.update-form label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary, #475569);
+}
+.meta-val-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Selector de archivo de evidencia */
+.file-drop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+  padding: 1rem;
+  border: 1.5px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface, #FFFFFF);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.file-drop:hover,
+.file-drop:focus-within {
+  border-color: var(--color-primary, #0B6B4B);
+}
+.file-drop.has-file {
+  border-style: solid;
+  border-color: var(--color-primary, #0B6B4B);
+  background: var(--color-primary-light, #E3F1EA);
+}
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.file-drop-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #475569);
+}
+.file-drop-text strong {
+  color: var(--text-primary, #0F172A);
+  word-break: break-all;
 }
 </style>

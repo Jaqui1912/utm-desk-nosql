@@ -220,21 +220,7 @@ const estadoCounts = ref({});
 const loadingCounts = ref(false);
 
 // ── Catálogo de Edificios del Campus ──
-const EDIFICIOS_CAMPUS = [
-  'Edificio A',
-  'Edificio B',
-  'Edificio C',
-  'Edificio D',
-  'Edificio E',
-  'Edificio F',
-  'Edificio A - Rectoría',
-  'Edificio B - Docencia',
-  'Edificio C - Talleres',
-  'Edificio D - Cómputo',
-  'Edificio E - Biblioteca',
-  'Edificio F - Laboratorios',
-  'Auditorio Principal',
-];
+const EDIFICIOS_CAMPUS = ['Edificio A', 'Edificio B', 'Edificio C', 'Edificio D', 'Biblioteca'];
 
 const edificios = computed(() => {
   const fromData = incidencias.value.map(i => i.ubicacion?.edificio).filter(Boolean);

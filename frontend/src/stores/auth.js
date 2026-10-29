@@ -22,11 +22,14 @@ export const useAuthStore = defineStore('auth', {
     isAdminGeneral: (state) => state.user?.rol === 'admin_general',
     isDirectivo: (state) => state.user?.rol === 'directivo',
     isSysadmin: (state) => state.user?.rol === 'admin_sistema',
+    isSuperAdmin: (state) => state.user?.rol === 'superAdmin',
 
     // Helper de Matriz de Permisos (RBAC según Tabla 3 del documento)
     can: (state) => (action) => {
       const rol = state.user?.rol;
       if (!rol) return false;
+      // superAdmin (cuenta de evaluación del docente): acceso total
+      if (rol === 'superAdmin') return true;
 
       const PERMISOS = {
         registrar: ['reportante', 'admin_general'],

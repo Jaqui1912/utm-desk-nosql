@@ -35,6 +35,11 @@
       "key": "codigo_incidencia",
       "value": "INC-2026-0001",
       "type": "string"
+    },
+    {
+      "key": "token_superadmin",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -48,8 +53,12 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/health",
-              "host": ["{{base_url}}"],
-              "path": ["health"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           },
           "response": []
@@ -89,8 +98,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Inicia sesión como Laura Medina (Administradora General) y almacena el token."
           },
@@ -126,8 +140,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Inicia sesión como María López (Reportante Docente)."
           },
@@ -163,8 +182,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Inicia sesión como Carlos Pech (Técnico de cómputo e infraestructura)."
           },
@@ -200,8 +224,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Inicia sesión como Soporte UTM Desk (Administrador del Sistema)."
           },
@@ -223,8 +252,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "RF-12 Criterio de aceptación: con credenciales incorrectas devuelve HTTP 401."
           },
@@ -246,10 +280,56 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "RF-14 Criterio de aceptación: Mario Dzul (activo: false) no puede iniciar sesión -> HTTP 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Login superAdmin docente (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Código 200', function () { pm.response.to.have.status(200); });",
+                  "var j = pm.response.json();",
+                  "if (j.access_token) { pm.collectionVariables.set('token_superadmin', j.access_token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"lizandro.reyes@utmetropolitana.edu.mx\",\n  \"password\": \"lizandro_2026\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Cuenta de evaluación solicitada en los lineamientos (rol superAdmin, acceso total)."
           },
           "response": []
         }
@@ -270,8 +350,13 @@
             ],
             "url": {
               "raw": "{{base_url}}/usuarios/",
-              "host": ["{{base_url}}"],
-              "path": ["usuarios", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                ""
+              ]
             },
             "description": "RF-14: Consulta de usuarios del sistema (solo admin_sistema)."
           },
@@ -297,8 +382,13 @@
             },
             "url": {
               "raw": "{{base_url}}/usuarios/",
-              "host": ["{{base_url}}"],
-              "path": ["usuarios", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                ""
+              ]
             },
             "description": "RF-14: Administrador del sistema crea un nuevo técnico con password cifrado por bcrypt."
           },
@@ -324,8 +414,13 @@
             },
             "url": {
               "raw": "{{base_url}}/usuarios/",
-              "host": ["{{base_url}}"],
-              "path": ["usuarios", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                ""
+              ]
             },
             "description": "RF-15: Un reportante intenta crear usuarios y recibe HTTP 403 Forbidden."
           },
@@ -336,6 +431,41 @@
     {
       "name": "3. Asignación Técnica (RF-13)",
       "item": [
+        {
+          "name": "Listar técnicos activos (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Código 200', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin_general}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios/tecnicos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "tecnicos"
+              ]
+            },
+            "description": "RF-13: técnicos activos disponibles para asignar (solo Administrador General)."
+          },
+          "response": []
+        },
         {
           "name": "Asignar Técnico Responsable (200 OK)",
           "request": {
@@ -356,8 +486,14 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/INC-2026-0004/asignar-tecnico",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "INC-2026-0004", "asignar-tecnico"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "INC-2026-0004",
+                "asignar-tecnico"
+              ]
             },
             "description": "RF-13: Administrador General asigna al técnico Carlos Pech (6710a1b2c3d4e5f607182945)."
           },
@@ -383,8 +519,14 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/INC-2026-0004/asignar-tecnico",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "INC-2026-0004", "asignar-tecnico"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "INC-2026-0004",
+                "asignar-tecnico"
+              ]
             },
             "description": "RF-13 Criterio: cualquier rol distinto al administrador general recibe HTTP 403."
           },
@@ -415,8 +557,13 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                ""
+              ]
             },
             "description": "CU-01 / RF-01: Inserta incidencia adaptando el detalle específico. Genera folio único con Redis INCR."
           },
@@ -442,8 +589,13 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                ""
+              ]
             }
           },
           "response": []
@@ -468,8 +620,13 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                ""
+              ]
             }
           },
           "response": []
@@ -494,8 +651,13 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                ""
+              ]
             },
             "description": "RF-03: Demuestra rechazo con HTTP 400 por validación estricta de esquema BSON."
           },
@@ -518,8 +680,13 @@
             ],
             "url": {
               "raw": "{{base_url}}/incidencias/?categoria=computo_redes&estado=resuelta&edificio=Biblioteca",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", ""],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                ""
+              ],
               "query": [
                 {
                   "key": "categoria",
@@ -551,8 +718,13 @@
             ],
             "url": {
               "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "{{codigo_incidencia}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}"
+              ]
             }
           },
           "response": []
@@ -582,10 +754,151 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/evidencias",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "{{codigo_incidencia}}", "evidencias"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}",
+                "evidencias"
+              ]
             },
             "description": "CU-02: Agrega metadatos al arreglo evidencias_adjuntas mediante operación atómica $push."
+          },
+          "response": []
+        },
+        {
+          "name": "CU-02: Subir archivo al bucket (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Código 201', function () { pm.response.to.have.status(201); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona una imagen JPG/PNG, PDF o MP4 (máx. 5 MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/evidencias/archivo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}",
+                "evidencias",
+                "archivo"
+              ]
+            },
+            "description": "CU-02: sube el archivo físico a Supabase Storage y guarda solo los metadatos en evidencias_adjuntas con $push. En el campo 'archivo' elige un archivo de tu computadora."
+          },
+          "response": []
+        },
+        {
+          "name": "CU-02: Obtener URL firmada (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Código 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Incluye url', function () { pm.expect(pm.response.json().url).to.be.a('string'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/evidencias/0/url",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}",
+                "evidencias",
+                "0",
+                "url"
+              ]
+            },
+            "description": "Genera una URL temporal (10 minutos) para ver la evidencia en el índice indicado. Las evidencias de ejemplo del dataset solo tienen metadatos y responden 404."
+          },
+          "response": []
+        },
+        {
+          "name": "CU-02: Tipo de archivo no permitido (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Código 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo .txt o .docx para provocar el error"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/evidencias/archivo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}",
+                "evidencias",
+                "archivo"
+              ]
+            },
+            "description": "Rechaza archivos que no sean JPG, PNG, PDF o MP4."
           },
           "response": []
         }
@@ -614,8 +927,14 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/INC-2026-0003/estado",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "INC-2026-0003", "estado"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "INC-2026-0003",
+                "estado"
+              ]
             },
             "description": "CU-03: Actualización en una sola sentencia atómica con $set, $inc y $push."
           },
@@ -646,8 +965,14 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/tags",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "{{codigo_incidencia}}", "tags"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}",
+                "tags"
+              ]
             },
             "description": "CU-04: Agrega etiquetas evitando duplicados con $addToSet."
           },
@@ -673,8 +998,14 @@
             },
             "url": {
               "raw": "{{base_url}}/incidencias/{{codigo_incidencia}}/tags",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "{{codigo_incidencia}}", "tags"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "{{codigo_incidencia}}",
+                "tags"
+              ]
             },
             "description": "CU-04: Remueve etiqueta con $pull."
           },
@@ -697,8 +1028,13 @@
             ],
             "url": {
               "raw": "{{base_url}}/incidencias/buscar?q=wifi+acceso",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "buscar"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "buscar"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -727,8 +1063,13 @@
             ],
             "url": {
               "raw": "{{base_url}}/incidencias/analitica",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "analitica"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "analitica"
+              ]
             },
             "description": "CU-06 / RF-09: Ejecuta Pipeline 1 (horas por edificio) y Pipeline 2 (top 10 tags)."
           },
@@ -746,8 +1087,13 @@
             ],
             "url": {
               "raw": "{{base_url}}/incidencias/analitica",
-              "host": ["{{base_url}}"],
-              "path": ["incidencias", "analitica"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "incidencias",
+                "analitica"
+              ]
             },
             "description": "RF-09 Criterio de aceptación: los roles sin permiso reciben HTTP 403 Forbidden."
           },

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Literal, Optional, Union
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError, model_validator
 
 # ── Tipos y Enums según el esquema oficial de Atlas ───────────────────────────
 CategoriaEnum = Literal["computo_redes", "infraestructura", "academico"]
@@ -45,6 +45,13 @@ class DetalleAcademico(BaseModel):
     estudiantes_impactados: int = Field(..., ge=0)
 
     model_config = {"extra": "forbid"}
+
+
+DETALLE_POR_CATEGORIA = {
+    "computo_redes": DetalleComputoRedes,
+    "infraestructura": DetalleInfraestructura,
+    "academico": DetalleAcademico,
+}
 
 
 # ── Estructuras anidadas de la incidencia ──────────────────────────────────────
@@ -101,9 +108,23 @@ class IncidenciaCreate(BaseModel):
     prioridad: PrioridadEnum
     reportante: ReportanteModel
     ubicacion: UbicacionModel
-    detalle_especifico: Union[DetalleComputoRedes, DetalleInfraestructura, DetalleAcademico, dict[str, Any]]
+    detalle_especifico: dict[str, Any]
     tags: list[str] = Field(default_factory=list)
     tecnico_asignado: Optional[TecnicoAsignadoModel] = None
+
+    @model_validator(mode="after")
+    def validar_detalle_por_categoria(self):
+        """RF-02: el detalle_especifico debe tener exactamente la forma de su categoría."""
+        modelo = DETALLE_POR_CATEGORIA[self.categoria]
+        try:
+            detalle = modelo.model_validate(self.detalle_especifico)
+        except ValidationError as e:
+            errores = "; ".join(
+                f"detalle_especifico.{'.'.join(str(p) for p in err['loc'])}: {err['msg']}" for err in e.errors()
+            )
+            raise ValueError(errores)
+        self.detalle_especifico = detalle.model_dump(exclude_none=True)
+        return self
 
 
 class CargarEvidencia(BaseModel):

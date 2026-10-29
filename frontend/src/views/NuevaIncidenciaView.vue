@@ -10,7 +10,7 @@
         </router-link>
         <h1 class="view-title">Registrar Nueva Incidencia</h1>
         <p class="view-subtitle">
-          Completa el expediente técnico. El esquema se valida automáticamente contra el $jsonSchema de MongoDB Atlas.
+          Completa los datos generales y el detalle técnico de la categoría. Los campos marcados con * son obligatorios.
         </p>
       </div>
     </div>
@@ -22,7 +22,7 @@
 
     <div class="form-layout">
       <!-- ── Columna Formulario ── -->
-      <form @submit.prevent="handleSubmit" class="form-card">
+      <form @submit.prevent="handleSubmit" class="form-card" novalidate>
         
         <!-- 1. Selección de Categoría (Polimórfica) -->
         <div class="form-section">
@@ -334,22 +334,11 @@
             :disabled="loading"
           >
             <span v-if="loading" class="spinner-sm"></span>
-            <span v-if="loading">Registrando en Atlas…</span>
+            <span v-if="loading">Registrando…</span>
             <span v-else>Registrar Expediente</span>
           </button>
         </div>
       </form>
-
-      <!-- ── Columna Preview MongoDB Document ── -->
-      <div class="preview-panel">
-        <div class="preview-header">
-          <div class="preview-title-box">
-            <span class="preview-badge">MongoDB BSON Preview</span>
-            <span class="preview-sub">Validación $jsonSchema viva</span>
-          </div>
-        </div>
-        <pre class="json-code"><code>{{ bsonPreview }}</code></pre>
-      </div>
     </div>
   </div>
 </template>
@@ -375,15 +364,7 @@ const CATEGORIAS = [
   { id: 'academico', label: 'Sistemas Académicos', desc: 'Saeko, calificaciones, plataformas LMS y correos' },
 ];
 
-const EDIFICIOS = [
-  'Edificio A - Rectoría',
-  'Edificio B - Docencia',
-  'Edificio C - Talleres',
-  'Edificio D - Cómputo',
-  'Edificio E - Biblioteca',
-  'Edificio F - Laboratorios',
-  'Auditorio Principal',
-];
+const EDIFICIOS = ['Edificio A', 'Edificio B', 'Edificio C', 'Edificio D', 'Biblioteca'];
 
 const form = reactive({
   categoria: 'computo_redes',
@@ -410,7 +391,7 @@ const form = reactive({
     // academico
     plataforma: '',
     codigo_curso: '',
-    periodo_escolar: 'Ene-Abr 2026',
+    periodo_escolar: 'Sep-Dic 2026',
     estudiantes_impactados: 1,
   },
 });
@@ -424,65 +405,11 @@ function seleccionarCategoria(id) {
   form.categoria = id;
 }
 
-// BSON Preview reactivo para que el usuario observe la estructura NoSQL
-const bsonPreview = computed(() => {
-  let detalle = {};
-  if (form.categoria === 'computo_redes') {
-    detalle = {
-      equipo_afectado: form.detalle.equipo_afectado || '...',
-      direccion_ip: form.detalle.direccion_ip || '...',
-      vlan: Number(form.detalle.vlan) || 1,
-      puerto_uplink: form.detalle.puerto_uplink || '...',
-      equipos_afectados: Number(form.detalle.equipos_afectados) || 0,
-    };
-  } else if (form.categoria === 'infraestructura') {
-    detalle = {
-      tipo_dano: form.detalle.tipo_dano || '...',
-      riesgo_seguridad: Boolean(form.detalle.riesgo_seguridad),
-      insumos_requeridos: insumosInput.value ? insumosInput.value.split(',').map(s => s.trim()).filter(Boolean) : [],
-    };
-    if (form.detalle.contratista_empresa && form.detalle.contratista_intervencion) {
-      detalle.contratista = {
-        empresa: form.detalle.contratista_empresa,
-        intervencion: form.detalle.contratista_intervencion,
-      };
-    }
-  } else if (form.categoria === 'academico') {
-    detalle = {
-      plataforma: form.detalle.plataforma || '...',
-      codigo_curso: form.detalle.codigo_curso || '...',
-      periodo_escolar: form.detalle.periodo_escolar || '...',
-      estudiantes_impactados: Number(form.detalle.estudiantes_impactados) || 0,
-    };
-  }
 
-  const preview = {
-    _id: "ObjectId('...')",
-    codigo: 'INC-2026-XXXX (vía Redis INCR)',
-    titulo: form.titulo || '...',
-    descripcion: form.descripcion || '...',
-    categoria: form.categoria,
-    prioridad: form.prioridad,
-    estado: 'abierta',
-    reportante: {
-      usuario_id: auth.userId || "ObjectId('...')",
-      nombre: auth.nombre,
-      tipo: auth.tipo || 'docente',
-      correo: auth.user?.correo || '',
-    },
-    ubicacion: {
-      edificio: form.ubicacion.edificio || '...',
-      zona: form.ubicacion.zona || '...',
-      piso: Number(form.ubicacion.piso) || 1,
-    },
-    tags: tagsInput.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean),
-    detalle_especifico: detalle,
-    historial_seguimiento: [],
-    evidencias_adjuntas: [],
-  };
-
-  return JSON.stringify(preview, null, 2);
-});
+// Campo numérico vacío → null (la API responde 400 indicando el campo, en lugar de mandar 0)
+function aNumero(v) {
+  return v === '' || v === null || v === undefined ? null : Number(v);
+}
 
 async function handleSubmit() {
   errorMessage.value = '';
@@ -495,9 +422,9 @@ async function handleSubmit() {
       detalle_especifico = {
         equipo_afectado: form.detalle.equipo_afectado.trim(),
         direccion_ip: form.detalle.direccion_ip.trim(),
-        vlan: Number(form.detalle.vlan),
+        vlan: aNumero(form.detalle.vlan),
         puerto_uplink: form.detalle.puerto_uplink.trim(),
-        equipos_afectados: Number(form.detalle.equipos_afectados),
+        equipos_afectados: aNumero(form.detalle.equipos_afectados),
       };
     } else if (form.categoria === 'infraestructura') {
       detalle_especifico = {
@@ -521,7 +448,7 @@ async function handleSubmit() {
         plataforma: form.detalle.plataforma.trim(),
         codigo_curso: form.detalle.codigo_curso.trim(),
         periodo_escolar: form.detalle.periodo_escolar.trim(),
-        estudiantes_impactados: Number(form.detalle.estudiantes_impactados),
+        estudiantes_impactados: aNumero(form.detalle.estudiantes_impactados),
       };
     }
 
@@ -538,7 +465,7 @@ async function handleSubmit() {
       reportante: {
         usuario_id: auth.userId || '654321000000000000000001',
         nombre: auth.nombre,
-        tipo: auth.tipo || 'docente',
+        tipo: auth.tipo || 'administrativo',
         correo: auth.user?.correo || 'reportante@utm.example',
       },
       ubicacion: {
@@ -554,7 +481,11 @@ async function handleSubmit() {
     const nuevaId = res.data.id || res.data._id;
     router.push(`/incidencias/${nuevaId}`);
   } catch (err) {
-    errorMessage.value = err.response?.data?.detail || err.message || 'Error al registrar la incidencia.';
+    // Mostrar el código HTTP que devuelve la API (p. ej. 400 cuando falla la validación)
+    const status = err.response?.status;
+    const detalle = err.response?.data?.detail || err.message || 'Error al registrar la incidencia.';
+    errorMessage.value = status ? `Error ${status} · ${detalle}` : detalle;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   } finally {
     loading.value = false;
   }
@@ -599,7 +530,8 @@ async function handleSubmit() {
 
 .form-layout {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  max-width: 860px;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: flex-start;
 }
