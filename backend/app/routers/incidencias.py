@@ -4,7 +4,7 @@ from typing import Optional
 from bson import ObjectId
 from bson.errors import InvalidId
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import redis.asyncio as aioredis
 from pymongo.errors import WriteError
@@ -18,6 +18,7 @@ from ..models.incidencia import (
     IncidenciaCreate,
     serialize_doc,
 )
+from ..supabase_storage import subir_archivo, MIME_PERMITIDOS
 
 logger = logging.getLogger("utm_desk")
 router = APIRouter(prefix="/incidencias", tags=["incidencias"])
@@ -381,26 +382,63 @@ async def asignar_tecnico(
 @router.post("/{identificador}/evidencias", summary="CU-02 / RF-05 – Cargar evidencia multimedia")
 async def cargar_evidencia(
     identificador: str,
-    payload: CargarEvidencia,
+    archivo: UploadFile = File(..., description="Archivo a adjuntar (JPG, PNG, PDF, MP4)"),
     db: AsyncIOMotorDatabase = Depends(get_db),
     usuario: dict = Depends(requerir_roles(["reportante", "tecnico", "admin_general"])),
 ):
     """
-    CU-02 / RF-05: Asocia metadatos de evidencias multimedia al arreglo evidencias_adjuntas con $push.
-    Permitido para reportante, técnico y administrador general.
+    CU-02 / RF-05: Sube el archivo a Supabase Storage y registra sus metadatos
+    en evidencias_adjuntas con $push. Si Supabase no está configurado, guarda
+    solo metadatos (modo degradado).
+
+    - Permitido para reportante (solo en sus propias incidencias), técnico y admin_general.
+    - Tipos MIME permitidos: image/jpeg, image/png, application/pdf, video/mp4.
     """
     doc_inc = await _obtener_incidencia_or_404(db, identificador)
+    codigo_incidencia = doc_inc.get("codigo", identificador)
 
     # Si es reportante, verificar que sea el dueño de la incidencia
     if usuario.get("rol") == "reportante" and doc_inc.get("reportante", {}).get("usuario_id") != usuario["_id"]:
         raise HTTPException(status_code=403, detail="No tienes permiso para adjuntar evidencias en esta incidencia.")
 
+    # Validar tipo MIME contra la lista permitida
+    tipo_mime = archivo.content_type or ""
+    if tipo_mime not in MIME_PERMITIDOS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Tipo de archivo '{tipo_mime}' no permitido. "
+                f"Tipos aceptados: {', '.join(sorted(MIME_PERMITIDOS))}"
+            ),
+        )
+
+    # Leer bytes del archivo
+    contenido = await archivo.read()
+    peso_kb = round(len(contenido) / 1024, 2)
+
+    # Subir a Supabase Storage (retorna URL pública o None si no está configurado)
+    try:
+        url_publica = await subir_archivo(
+            contenido=contenido,
+            nombre_archivo=archivo.filename,
+            tipo_mime=tipo_mime,
+            carpeta=codigo_incidencia,
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except RuntimeError as re:
+        raise HTTPException(status_code=502, detail=f"Error al subir archivo a Storage: {str(re)}")
+
+    # Si Supabase no está configurado, construir ruta simulada
+    if url_publica is None:
+        url_publica = f"incidencias/{codigo_incidencia}/{archivo.filename}"
+
     filtro = _construir_filtro_identificador(identificador)
     nueva_evidencia = {
-        "nombre_archivo": payload.nombre_archivo,
-        "tipo_mime": payload.tipo_mime,
-        "peso_kb": payload.peso_kb,
-        "url_storage": payload.url_storage,
+        "nombre_archivo": archivo.filename,
+        "tipo_mime": tipo_mime,
+        "peso_kb": peso_kb,
+        "url_storage": url_publica,
         "fecha_carga": datetime.now(timezone.utc),
     }
 
