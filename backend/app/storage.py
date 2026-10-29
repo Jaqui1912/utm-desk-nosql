@@ -5,7 +5,7 @@ Los archivos NO se guardan en MongoDB: se suben a un bucket de Supabase Storage
 y en el documento solo queda la ruta (url_storage). Para verlos se genera una
 URL firmada con vigencia limitada.
 
-Si SUPABASE_URL / SUPABASE_SERVICE_KEY no están configurados (por ejemplo, en
+Si SUPABASE_URL / SUPABASE_KEY no están configurados (por ejemplo, en
 desarrollo local), se usa la carpeta backend/uploads y una URL firmada local
 (token JWT con expiración) servida por el router /archivos.
 """
@@ -22,14 +22,14 @@ CARPETA_LOCAL = Path(__file__).resolve().parent.parent / "uploads"
 
 
 def usa_supabase() -> bool:
-    url, key = settings.supabase_url.strip(), settings.supabase_service_key.strip()
+    url, key = settings.supabase_url.strip(), settings.supabase_key.strip()
     return bool(url and key and "<" not in url and "<" not in key)
 
 
 def _headers() -> dict:
     return {
-        "Authorization": f"Bearer {settings.supabase_service_key}",
-        "apikey": settings.supabase_service_key,
+        "Authorization": f"Bearer {settings.supabase_key}",
+        "apikey": settings.supabase_key,
     }
 
 
@@ -55,6 +55,9 @@ async def subir_archivo(ruta: str, contenido: bytes, tipo_mime: str) -> None:
 async def generar_url_firmada(ruta: str, base_url: str) -> str:
     """Devuelve una URL temporal (vigencia settings.url_firmada_segundos) para ver el archivo."""
     segundos = settings.url_firmada_segundos
+    # Evidencias registradas con la URL completa (versión anterior con bucket público)
+    if ruta.startswith("http://") or ruta.startswith("https://"):
+        return ruta
     if usa_supabase():
         base = settings.supabase_url.rstrip("/")
         url = f"{base}/storage/v1/object/sign/{settings.supabase_bucket}/{quote(ruta)}"

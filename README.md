@@ -67,11 +67,11 @@ Abre http://localhost:5173.
 ## Evidencias (Supabase Storage)
 
 1. Crea un proyecto gratuito en supabase.com y un bucket **privado** llamado `evidencias`.
-2. En *Project Settings → API* copia la URL y la `service_role key` en `SUPABASE_URL` y `SUPABASE_SERVICE_KEY` del `.env`.
+2. En *Project Settings → API* copia la URL y la `service_role key` en `SUPABASE_URL` y `SUPABASE_KEY` del `.env`.
 
 Sin esas variables, el backend guarda los archivos en `backend/uploads/` (sirve para probar en local, no para el despliegue).
 
 ## Despliegue
 
-- **Backend en Render:** conecta el repositorio; el archivo `render.yaml` ya trae los comandos. Captura en Render las variables `MONGODB_URI`, `SUPABASE_URL` y `SUPABASE_SERVICE_KEY`.
+- **Backend en Render:** conecta el repositorio; el archivo `render.yaml` ya trae los comandos. Captura en Render las variables `MONGODB_URI`, `SUPABASE_URL` y `SUPABASE_KEY`.
 - **Frontend en Vercel:** importa el repositorio con *Root Directory* = `frontend` y agrega la variable `VITE_API_URL` con la URL de Render.

@@ -1,4 +1,5 @@
 import os
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings
 
 
@@ -15,7 +16,8 @@ class Settings(BaseSettings):
     # Almacenamiento de evidencias (Supabase Storage). Si no se configuran,
     # los archivos se guardan en backend/uploads y se sirven con URL firmada local.
     supabase_url: str = os.getenv("SUPABASE_URL", "")
-    supabase_service_key: str = os.getenv("SUPABASE_SERVICE_KEY", "")
+    # Acepta SUPABASE_KEY (nombre usado por el equipo) o SUPABASE_SERVICE_KEY
+    supabase_key: str = Field("", validation_alias=AliasChoices("SUPABASE_KEY", "SUPABASE_SERVICE_KEY"))
     supabase_bucket: str = os.getenv("SUPABASE_BUCKET", "evidencias")
     url_firmada_segundos: int = 600  # vigencia de las URLs firmadas (10 min)
     evidencia_max_mb: int = 5
