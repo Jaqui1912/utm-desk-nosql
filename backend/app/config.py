@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 1440  # 24 horas
 
+    # Supabase Storage Settings
+    supabase_url: str = os.getenv("SUPABASE_URL", "")
+    supabase_key: str = os.getenv("SUPABASE_KEY", "")
+    supabase_bucket: str = os.getenv("SUPABASE_BUCKET", "evidencias")
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 

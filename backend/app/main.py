@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .database import connect_db, close_db
 from .routers import auth, incidencias, usuarios
@@ -23,6 +25,15 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# ── Manejador de error para devolver 400 Bad Request en validación (Rúbrica RF-03) ──
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=400,
+        content={"detail": exc.errors()},
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
