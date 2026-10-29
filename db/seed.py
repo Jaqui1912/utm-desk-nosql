@@ -360,7 +360,8 @@ def construir_incidencias(ahora, usuarios):
         tec = usuarios[d["tec"]] if d["tec"] else None
         if tec:
             doc["tecnico_asignado"] = {"usuario_id": tec["_id"], "nombre": tec["nombre"]}
-        edificio, zona, piso = d["ubic"]
+        ubic: tuple[str,str,int] = d["ubic"]
+        edificio, zona, piso = ubic
         doc["ubicacion"] = {"edificio": edificio, "zona": zona, "piso": piso}
         doc["fecha_creacion"] = creada
 
