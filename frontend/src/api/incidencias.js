@@ -89,6 +89,13 @@ export const incidenciasApi = {
   },
 
   /**
+   * CU-02: DELETE /incidencias/:id/evidencias/:indice — eliminar una evidencia
+   */
+  eliminarEvidencia(id, indice) {
+    return api.delete(`${BASE}/${id}/evidencias/${indice}`);
+  },
+
+  /**
    * CU-04: PATCH /incidencias/:id/tags — gestionar etiquetas
    */
   gestionarTags(id, accion, tags) {

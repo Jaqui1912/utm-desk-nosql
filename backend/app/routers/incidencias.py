@@ -560,6 +560,49 @@ async def url_evidencia(
     return {"url": url, "expira_en_segundos": settings.url_firmada_segundos}
 
 
+# ── CU-02: Eliminar una evidencia de la incidencia ─────────────────────────────
+@router.delete(
+    "/{identificador}/evidencias/{indice}",
+    summary="CU-02 – Eliminar una evidencia por índice",
+)
+async def eliminar_evidencia(
+    identificador: str,
+    indice: int,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    usuario: dict = Depends(requerir_roles(["reportante", "tecnico", "admin_general"])),
+):
+    """
+    Elimina una evidencia individual por su índice:
+    1. Borra el archivo físico de Supabase Storage o de la carpeta local.
+    2. Remueve el elemento del arreglo evidencias_adjuntas en MongoDB.
+    """
+    doc_inc = await _obtener_incidencia_or_404(db, identificador)
+
+    if usuario.get("rol") == "reportante" and doc_inc.get("reportante", {}).get("usuario_id") != usuario["_id"]:
+        raise HTTPException(status_code=403, detail="No tienes permiso para modificar evidencias en esta incidencia.")
+
+    evidencias = doc_inc.get("evidencias_adjuntas", [])
+    if indice < 0 or indice >= len(evidencias):
+        raise HTTPException(status_code=404, detail="Evidencia no encontrada.")
+
+    evidencia_a_borrar = evidencias[indice]
+    ruta = evidencia_a_borrar.get("url_storage", "")
+    if ruta:
+        await storage.eliminar_archivo(ruta)
+
+    evidencias.pop(indice)
+    try:
+        await db[COLECCION].update_one(
+            {"_id": doc_inc["_id"]},
+            {"$set": {"evidencias_adjuntas": evidencias}},
+        )
+    except WriteError as we:
+        raise HTTPException(status_code=400, detail=f"Error al eliminar la evidencia: {we.details}")
+
+    doc_actualizado = await _obtener_incidencia_or_404(db, identificador)
+    return serialize_doc(doc_actualizado)
+
+
 # ── CU-03: Actualizar Estado y Bitácora Atómica (RF-06) ────────────────────────
 @router.patch("/{identificador}/estado", summary="CU-03 / RF-06 – Actualizar estado y bitácora")
 async def actualizar_estado(

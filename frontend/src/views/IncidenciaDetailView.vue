@@ -269,14 +269,26 @@
                     {{ ev.tipo_mime }} · {{ ev.peso_kb }} KB · {{ formatDate(ev.fecha_carga) }}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  :disabled="abriendoEvidencia === idx"
-                  @click="abrirEvidencia(idx)"
-                >
-                  {{ abriendoEvidencia === idx ? 'Generando enlace…' : 'Ver archivo ↗' }}
-                </button>
+                <div class="ev-actions">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    :disabled="abriendoEvidencia === idx"
+                    @click="abrirEvidencia(idx)"
+                  >
+                    {{ abriendoEvidencia === idx ? 'Generando enlace…' : 'Ver archivo ↗' }}
+                  </button>
+                  <button
+                    v-if="canEvidencias"
+                    type="button"
+                    class="btn btn-danger-sm"
+                    :disabled="eliminandoEvidencia === idx"
+                    @click="handleEliminarEvidencia(idx, ev.nombre_archivo)"
+                    title="Quitar esta evidencia"
+                  >
+                    {{ eliminandoEvidencia === idx ? 'Quitando…' : 'Quitar' }}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -293,31 +305,66 @@
               </div>
 
               <form @submit.prevent="handleAdjuntarEvidencia" class="evidencia-form">
-                <label class="file-drop" :class="{ 'has-file': archivoSeleccionado }">
+                <label class="file-drop" :class="{ 'has-file': archivosSeleccionados.length > 0 }">
                   <input
                     ref="inputArchivo"
                     type="file"
+                    multiple
                     accept="image/jpeg,image/png,application/pdf,video/mp4"
                     class="file-input"
-                    @change="onArchivoSeleccionado"
+                    @change="onArchivosSeleccionados"
                   />
-                  <span v-if="!archivoSeleccionado" class="file-drop-text">
-                    <strong>Selecciona una imagen, PDF o video</strong>
-                    <span>JPG, PNG, PDF o MP4 · máximo 5 MB</span>
+                  <span v-if="archivosSeleccionados.length === 0" class="file-drop-text">
+                    <strong>Selecciona una o varias imágenes, PDFs o videos</strong>
+                    <span>JPG, PNG, PDF o MP4 · máximo 5 MB por archivo · clic o arrastra aquí</span>
                   </span>
                   <span v-else class="file-drop-text">
-                    <strong>{{ archivoSeleccionado.name }}</strong>
-                    <span>{{ archivoSeleccionado.type || 'tipo desconocido' }} · {{ Math.max(1, Math.round(archivoSeleccionado.size / 1024)) }} KB</span>
+                    <strong>+ Agregar más archivos a la lista</strong>
+                    <span>Haz clic aquí si deseas sumar más evidencias</span>
                   </span>
                 </label>
+
+                <!-- Lista de archivos seleccionados pendientes de subida -->
+                <div v-if="archivosSeleccionados.length > 0" class="archivos-staging-box">
+                  <div class="staging-header">
+                    <span class="staging-title">Archivos seleccionados ({{ archivosSeleccionados.length }}):</span>
+                    <button type="button" class="btn-cancel-file" @click="cancelarSeleccionArchivos">
+                      ✕ Descartar todos
+                    </button>
+                  </div>
+                  <ul class="archivos-staging-list">
+                    <li
+                      v-for="(arch, idx) in archivosSeleccionados"
+                      :key="arch.name + idx"
+                      class="staging-item"
+                    >
+                      <div class="staging-item-info">
+                        <span class="staging-item-name font-mono" :title="arch.name">{{ arch.name }}</span>
+                        <span class="staging-item-meta">
+                          {{ arch.type || 'archivo' }} · {{ Math.max(1, Math.round(arch.size / 1024)) }} KB
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-remove-selected"
+                        @click="quitarArchivoSeleccionado(idx)"
+                        title="Quitar este archivo de la lista"
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  </ul>
+                </div>
 
                 <button
                   type="submit"
                   class="btn btn-primary btn-sm"
-                  :disabled="!archivoSeleccionado || uploadingEvidencia"
+                  :disabled="archivosSeleccionados.length === 0 || uploadingEvidencia"
                 >
-                  <span v-if="uploadingEvidencia">Subiendo archivo…</span>
-                  <span v-else>Subir evidencia</span>
+                  <span v-if="uploadingEvidencia">{{ uploadProgreso || 'Subiendo evidencias…' }}</span>
+                  <span v-else>
+                    Subir {{ archivosSeleccionados.length > 1 ? `${archivosSeleccionados.length} evidencias` : 'evidencia' }}
+                  </span>
                 </button>
               </form>
             </div>
@@ -482,9 +529,11 @@ const formAvance = ref({
   comentario: '',
 });
 
-const archivoSeleccionado = ref(null);
+const archivosSeleccionados = ref([]);
+const uploadProgreso = ref('');
 const inputArchivo = ref(null);
 const abriendoEvidencia = ref(null);
+const eliminandoEvidencia = ref(null);
 const MAX_MB = 5;
 
 const nuevoTagInput = ref('');
@@ -607,32 +656,80 @@ async function handleAsignarTecnico() {
   }
 }
 
-// CU-02: Adjuntar Evidencia (archivo real → Cloud Storage + $push de metadatos)
-function onArchivoSeleccionado(e) {
+// CU-02: Adjuntar Evidencias (múltiples archivos → Cloud Storage + $push)
+function onArchivosSeleccionados(e) {
   evidenciaError.value = '';
-  const archivo = e.target.files?.[0] || null;
-  if (archivo && archivo.size > MAX_MB * 1024 * 1024) {
-    evidenciaError.value = `El archivo supera el máximo de ${MAX_MB} MB.`;
-    e.target.value = '';
-    archivoSeleccionado.value = null;
-    return;
+  const nuevos = Array.from(e.target.files || []);
+  const validos = [];
+  const errores = [];
+
+  for (const f of nuevos) {
+    if (f.size > MAX_MB * 1024 * 1024) {
+      errores.push(`"${f.name}" supera el límite de ${MAX_MB} MB.`);
+    } else {
+      const yaExiste = archivosSeleccionados.value.some(
+        (existente) => existente.name === f.name && existente.size === f.size
+      );
+      if (!yaExiste) {
+        validos.push(f);
+      }
+    }
   }
-  archivoSeleccionado.value = archivo;
+
+  if (errores.length > 0) {
+    evidenciaError.value = errores.join(' ');
+  }
+
+  archivosSeleccionados.value = [...archivosSeleccionados.value, ...validos];
+  e.target.value = '';
+}
+
+function quitarArchivoSeleccionado(index) {
+  archivosSeleccionados.value.splice(index, 1);
+}
+
+function cancelarSeleccionArchivos() {
+  archivosSeleccionados.value = [];
+  if (inputArchivo.value) inputArchivo.value.value = '';
 }
 
 async function handleAdjuntarEvidencia() {
-  if (!archivoSeleccionado.value) return;
+  if (archivosSeleccionados.value.length === 0) return;
   evidenciaError.value = '';
   uploadingEvidencia.value = true;
+  const total = archivosSeleccionados.value.length;
+  const id = incidencia.value._id || incidencia.value.id;
+
   try {
-    const res = await incidenciasApi.subirEvidencia(incidencia.value._id || incidencia.value.id, archivoSeleccionado.value);
-    incidencia.value = res.data;
-    archivoSeleccionado.value = null;
+    for (let i = 0; i < total; i++) {
+      const archivo = archivosSeleccionados.value[i];
+      uploadProgreso.value = `Subiendo ${i + 1} de ${total}: ${archivo.name}…`;
+      const res = await incidenciasApi.subirEvidencia(id, archivo);
+      incidencia.value = res.data;
+    }
+    archivosSeleccionados.value = [];
     if (inputArchivo.value) inputArchivo.value.value = '';
   } catch (err) {
-    evidenciaError.value = err.response?.data?.detail || err.message || 'Error al subir la evidencia.';
+    evidenciaError.value = err.response?.data?.detail || err.message || 'Error al subir una o más evidencias.';
   } finally {
     uploadingEvidencia.value = false;
+    uploadProgreso.value = '';
+  }
+}
+
+// CU-02: Eliminar una evidencia individual del expediente
+async function handleEliminarEvidencia(idx, nombre) {
+  if (!confirm(`¿Estás seguro de quitar la evidencia "${nombre}"?`)) return;
+  evidenciaError.value = '';
+  eliminandoEvidencia.value = idx;
+  try {
+    const id = incidencia.value._id || incidencia.value.id;
+    const res = await incidenciasApi.eliminarEvidencia(id, idx);
+    incidencia.value = res.data;
+  } catch (err) {
+    evidenciaError.value = err.response?.data?.detail || err.message || 'Error al eliminar la evidencia.';
+  } finally {
+    eliminandoEvidencia.value = null;
   }
 }
 
@@ -984,6 +1081,117 @@ onMounted(() => {
 .ev-meta {
   font-size: 0.7rem;
   color: var(--text-tertiary);
+}
+
+.ev-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-danger-sm {
+  background: transparent;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-danger-sm:hover:not(:disabled) {
+  background: #FEE2E2;
+  border-color: #EF4444;
+  color: #B91C1C;
+}
+.btn-danger-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-cancel-file {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+.btn-cancel-file:hover {
+  color: #DC2626;
+  text-decoration: underline;
+}
+
+.archivos-staging-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.staging-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.staging-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.archivos-staging-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.staging-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+}
+.staging-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  padding-right: 0.5rem;
+}
+.staging-item-name {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+.staging-item-meta {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+}
+.btn-remove-selected {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.btn-remove-selected:hover {
+  background: #FEE2E2;
+  color: #DC2626;
 }
 
 .add-evidencia-box {

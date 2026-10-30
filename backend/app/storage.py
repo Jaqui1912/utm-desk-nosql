@@ -52,6 +52,28 @@ async def subir_archivo(ruta: str, contenido: bytes, tipo_mime: str) -> None:
     destino.write_bytes(contenido)
 
 
+async def eliminar_archivo(ruta: str) -> None:
+    """Elimina el archivo del bucket de Supabase o del almacenamiento local."""
+    if not ruta:
+        return
+    if usa_supabase():
+        base = settings.supabase_url.rstrip("/")
+        url = f"{base}/storage/v1/object/{settings.supabase_bucket}"
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                await client.request("DELETE", url, json={"prefixes": [ruta]}, headers=_headers())
+        except Exception:
+            pass
+        return
+
+    destino = CARPETA_LOCAL / ruta
+    try:
+        if destino.is_file():
+            destino.unlink()
+    except Exception:
+        pass
+
+
 async def generar_url_firmada(ruta: str, base_url: str) -> str:
     """Devuelve una URL temporal (vigencia settings.url_firmada_segundos) para ver el archivo."""
     segundos = settings.url_firmada_segundos
