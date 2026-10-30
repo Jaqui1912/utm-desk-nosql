@@ -72,10 +72,12 @@ export const incidenciasApi = {
   /**
    * CU-02: POST /incidencias/:id/evidencias/archivo — sube el archivo al bucket (multipart)
    */
-  subirEvidencia(id, archivo) {
+  subirEvidencia(id, archivo, fase = null) {
     const datos = new FormData();
     datos.append('archivo', archivo);
+    const params = fase ? { fase } : {};
     return api.post(`${BASE}/${id}/evidencias/archivo`, datos, {
+      params,
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 60000,
     });

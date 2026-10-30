@@ -165,6 +165,7 @@ def schema_incidencias():
                         "peso_kb": {"bsonType": "int", "minimum": 1},
                         "url_storage": {"bsonType": "string"},
                         "fecha_carga": {"bsonType": "date"},
+                        "fase": {"enum": ["pre_revision", "post_revision"]},
                     },
                 },
             },

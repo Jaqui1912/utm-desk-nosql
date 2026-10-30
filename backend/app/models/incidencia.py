@@ -133,6 +133,7 @@ class CargarEvidencia(BaseModel):
     tipo_mime: TipoMimeEnum
     peso_kb: int = Field(..., ge=1)
     url_storage: str
+    fase: Optional[Literal["pre_revision", "post_revision"]] = "pre_revision"
 
 
 class ActualizarEstado(BaseModel):

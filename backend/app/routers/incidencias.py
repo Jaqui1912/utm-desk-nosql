@@ -450,12 +450,14 @@ async def cargar_evidencia(
         raise HTTPException(status_code=403, detail="No tienes permiso para adjuntar evidencias en esta incidencia.")
 
     filtro = _construir_filtro_identificador(identificador)
+    fase = payload.fase or ("post_revision" if usuario.get("rol") in ["tecnico", "admin_general"] else "pre_revision")
     nueva_evidencia = {
         "nombre_archivo": payload.nombre_archivo,
         "tipo_mime": payload.tipo_mime,
         "peso_kb": payload.peso_kb,
         "url_storage": payload.url_storage,
         "fecha_carga": datetime.now(timezone.utc),
+        "fase": fase,
     }
 
     try:
@@ -478,6 +480,7 @@ async def cargar_evidencia(
 async def subir_evidencia(
     identificador: str,
     archivo: UploadFile = File(..., description="Imagen (JPG/PNG), PDF o video MP4"),
+    fase: Optional[str] = Query(None, description="Fase de la evidencia: pre_revision o post_revision"),
     db: AsyncIOMotorDatabase = Depends(get_db),
     usuario: dict = Depends(requerir_roles(["reportante", "tecnico", "admin_general"])),
 ):
@@ -513,12 +516,18 @@ async def subir_evidencia(
         logger.error(f"Error al subir evidencia: {e}")
         raise HTTPException(status_code=502, detail="No se pudo subir el archivo al almacenamiento externo.")
 
+    # Determinar fase si no viene especificada: técnicos por defecto cargan post_revision
+    fase_final = fase if fase in ["pre_revision", "post_revision"] else (
+        "post_revision" if usuario.get("rol") in ["tecnico", "admin_general"] else "pre_revision"
+    )
+
     nueva_evidencia = {
         "nombre_archivo": nombre_limpio,
         "tipo_mime": tipo_mime,
         "peso_kb": max(1, round(len(contenido) / 1024)),
         "url_storage": ruta,
         "fecha_carga": ahora,
+        "fase": fase_final,
     }
     try:
         await db[COLECCION].update_one(

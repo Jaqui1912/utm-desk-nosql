@@ -245,26 +245,71 @@
             </div>
           </div>
 
-          <!-- Evidencias Adjuntas -->
+          <!-- Evidencias Adjuntas Diferenciadas (Pre-revisión y Post-revisión) -->
           <div class="card section-card">
             <div class="section-header-flex">
-              <h2 class="section-title">
-                Evidencias adjuntas ({{ incidencia.evidencias_adjuntas?.length || 0 }})
-              </h2>
+              <div>
+                <h2 class="section-title">
+                  Evidencias adjuntas ({{ incidencia.evidencias_adjuntas?.length || 0 }})
+                </h2>
+                <p class="section-desc">
+                  Expediente multimedia dividido en fallas iniciales y pruebas técnicas de resolución.
+                </p>
+              </div>
+
+              <!-- Pestañas de filtrado de evidencias -->
+              <div class="ev-tabs">
+                <button
+                  type="button"
+                  class="ev-tab-btn"
+                  :class="{ active: activeEvidenciasTab === 'todas' }"
+                  @click="activeEvidenciasTab = 'todas'"
+                >
+                  Todas ({{ incidencia.evidencias_adjuntas?.length || 0 }})
+                </button>
+                <button
+                  type="button"
+                  class="ev-tab-btn tab-pre"
+                  :class="{ active: activeEvidenciasTab === 'pre_revision' }"
+                  @click="activeEvidenciasTab = 'pre_revision'"
+                >
+                  Pre-revisión ({{ evidenciasPreRevision.length }})
+                </button>
+                <button
+                  type="button"
+                  class="ev-tab-btn tab-post"
+                  :class="{ active: activeEvidenciasTab === 'post_revision' }"
+                  @click="activeEvidenciasTab = 'post_revision'"
+                >
+                  Post-revisión ({{ evidenciasPostRevision.length }})
+                </button>
+              </div>
             </div>
 
-            <div v-if="incidencia.evidencias_adjuntas?.length === 0" class="empty-inline">
-              Sin evidencias multimedia adjuntas.
+            <!-- Listado de evidencias filtradas -->
+            <div v-if="evidenciasFiltradas.length === 0" class="empty-inline">
+              <span v-if="activeEvidenciasTab === 'pre_revision'">Sin evidencias iniciales de pre-revisión.</span>
+              <span v-else-if="activeEvidenciasTab === 'post_revision'">El técnico aún no ha adjuntado evidencias de post-revisión o reparación.</span>
+              <span v-else>Sin evidencias multimedia adjuntas en el expediente.</span>
             </div>
 
             <div v-else class="evidencias-list">
               <div
-                v-for="(ev, idx) in incidencia.evidencias_adjuntas"
-                :key="idx"
+                v-for="ev in evidenciasFiltradas"
+                :key="ev.originalIndex"
                 class="evidencia-row"
+                :class="ev.fase === 'post_revision' ? 'row-post-revision' : 'row-pre-revision'"
               >
                 <div class="ev-info">
-                  <span class="ev-name font-mono">{{ ev.nombre_archivo }}</span>
+                  <div class="ev-title-line">
+                    <span class="ev-name font-mono">{{ ev.nombre_archivo }}</span>
+                    <span
+                      class="fase-badge"
+                      :class="ev.fase === 'post_revision' ? 'badge-post' : 'badge-pre'"
+                    >
+                      {{ ev.fase === 'post_revision' ? 'Post-revisión (Técnico)' : 'Pre-revisión (Reporte)' }}
+                    </span>
+                  </div>
                   <span class="ev-meta">
                     {{ ev.tipo_mime }} · {{ ev.peso_kb }} KB · {{ formatDate(ev.fecha_carga) }}
                   </span>
@@ -273,20 +318,20 @@
                   <button
                     type="button"
                     class="btn btn-secondary btn-sm"
-                    :disabled="abriendoEvidencia === idx"
-                    @click="abrirEvidencia(idx)"
+                    :disabled="abriendoEvidencia === ev.originalIndex"
+                    @click="abrirEvidencia(ev.originalIndex)"
                   >
-                    {{ abriendoEvidencia === idx ? 'Generando enlace…' : 'Ver archivo ↗' }}
+                    {{ abriendoEvidencia === ev.originalIndex ? 'Generando enlace…' : 'Ver archivo ↗' }}
                   </button>
                   <button
                     v-if="canEvidencias"
                     type="button"
                     class="btn btn-danger-sm"
-                    :disabled="eliminandoEvidencia === idx"
-                    @click="handleEliminarEvidencia(idx, ev.nombre_archivo)"
+                    :disabled="eliminandoEvidencia === ev.originalIndex"
+                    @click="handleEliminarEvidencia(ev.originalIndex, ev.nombre_archivo)"
                     title="Quitar esta evidencia"
                   >
-                    {{ eliminandoEvidencia === idx ? 'Quitando…' : 'Quitar' }}
+                    {{ eliminandoEvidencia === ev.originalIndex ? 'Quitando…' : 'Quitar' }}
                   </button>
                 </div>
               </div>
@@ -298,7 +343,24 @@
 
             <!-- Formulario para adjuntar evidencia -->
             <div v-if="canEvidencias" class="add-evidencia-box">
-              <h3 class="update-title">Adjuntar evidencia al expediente</h3>
+              <div class="add-evidencia-header">
+                <h3 class="update-title">Adjuntar evidencia al expediente</h3>
+
+                <!-- Selector de fase solo para técnicos o admins -->
+                <div v-if="auth.isTecnico || auth.isAdminGeneral" class="fase-selector">
+                  <label class="fase-radio" :class="{ selected: faseSubida === 'post_revision' }">
+                    <input type="radio" value="post_revision" v-model="faseSubida" />
+                    <span>Post-revisión (Reparación / Solución)</span>
+                  </label>
+                  <label class="fase-radio" :class="{ selected: faseSubida === 'pre_revision' }">
+                    <input type="radio" value="pre_revision" v-model="faseSubida" />
+                    <span>Pre-revisión (Falla reportada)</span>
+                  </label>
+                </div>
+                <div v-else class="fase-reportante-pill">
+                  Categoría: Pre-revisión (Evidencia de la falla)
+                </div>
+              </div>
               
               <div v-if="evidenciaError" class="error-banner-inline">
                 {{ evidenciaError }}
@@ -320,14 +382,16 @@
                   </span>
                   <span v-else class="file-drop-text">
                     <strong>+ Agregar más archivos a la lista</strong>
-                    <span>Haz clic aquí si deseas sumar más evidencias</span>
+                    <span>Haz clic aquí si deseas sumar más evidencias a subir</span>
                   </span>
                 </label>
 
                 <!-- Lista de archivos seleccionados pendientes de subida -->
                 <div v-if="archivosSeleccionados.length > 0" class="archivos-staging-box">
                   <div class="staging-header">
-                    <span class="staging-title">Archivos seleccionados ({{ archivosSeleccionados.length }}):</span>
+                    <span class="staging-title">
+                      Archivos listos para subir como <strong>{{ faseSubida === 'post_revision' ? 'Post-revisión' : 'Pre-revisión' }}</strong> ({{ archivosSeleccionados.length }}):
+                    </span>
                     <button type="button" class="btn-cancel-file" @click="cancelarSeleccionArchivos">
                       ✕ Descartar todos
                     </button>
@@ -363,7 +427,7 @@
                 >
                   <span v-if="uploadingEvidencia">{{ uploadProgreso || 'Subiendo evidencias…' }}</span>
                   <span v-else>
-                    Subir {{ archivosSeleccionados.length > 1 ? `${archivosSeleccionados.length} evidencias` : 'evidencia' }}
+                    Subir {{ archivosSeleccionados.length > 1 ? `${archivosSeleccionados.length} evidencias` : 'evidencia' }} ({{ faseSubida === 'post_revision' ? 'Post-revisión' : 'Pre-revisión' }})
                   </span>
                 </button>
               </form>
@@ -536,6 +600,10 @@ const abriendoEvidencia = ref(null);
 const eliminandoEvidencia = ref(null);
 const MAX_MB = 5;
 
+// Fase activa para subida y pestañas
+const activeEvidenciasTab = ref('todas'); // 'todas' | 'pre_revision' | 'post_revision'
+const faseSubida = ref(auth.isTecnico ? 'post_revision' : 'pre_revision');
+
 const nuevoTagInput = ref('');
 const selectedTecnicoId = ref('');
 
@@ -554,6 +622,29 @@ const esEstadoAbierto = computed(() => {
 const sortedHistorial = computed(() => {
   if (!incidencia.value?.historial_seguimiento) return [];
   return [...incidencia.value.historial_seguimiento].reverse();
+});
+
+const evidenciasConIndice = computed(() => {
+  const lista = incidencia.value?.evidencias_adjuntas || [];
+  return lista.map((ev, originalIndex) => ({
+    ...ev,
+    originalIndex,
+    fase: ev.fase || 'pre_revision',
+  }));
+});
+
+const evidenciasPreRevision = computed(() => {
+  return evidenciasConIndice.value.filter((ev) => ev.fase === 'pre_revision');
+});
+
+const evidenciasPostRevision = computed(() => {
+  return evidenciasConIndice.value.filter((ev) => ev.fase === 'post_revision');
+});
+
+const evidenciasFiltradas = computed(() => {
+  if (activeEvidenciasTab.value === 'pre_revision') return evidenciasPreRevision.value;
+  if (activeEvidenciasTab.value === 'post_revision') return evidenciasPostRevision.value;
+  return evidenciasConIndice.value;
 });
 
 // Utilidades de formato
@@ -704,7 +795,7 @@ async function handleAdjuntarEvidencia() {
     for (let i = 0; i < total; i++) {
       const archivo = archivosSeleccionados.value[i];
       uploadProgreso.value = `Subiendo ${i + 1} de ${total}: ${archivo.name}…`;
-      const res = await incidenciasApi.subirEvidencia(id, archivo);
+      const res = await incidenciasApi.subirEvidencia(id, archivo, faseSubida.value);
       incidencia.value = res.data;
     }
     archivosSeleccionados.value = [];
@@ -1081,6 +1172,134 @@ onMounted(() => {
 .ev-meta {
   font-size: 0.7rem;
   color: var(--text-tertiary);
+}
+
+.section-desc {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-top: 0.2rem;
+}
+
+.ev-tabs {
+  display: flex;
+  gap: 0.35rem;
+  background: var(--bg-surface-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.ev-tab-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ev-tab-btn:hover {
+  color: var(--text-main);
+}
+
+.ev-tab-btn.active {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.ev-tab-btn.tab-pre.active {
+  color: #0284C7;
+}
+
+.ev-tab-btn.tab-post.active {
+  color: #059669;
+}
+
+.ev-title-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fase-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.badge-pre {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+.badge-post {
+  background: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.row-post-revision {
+  border-left: 3px solid #10B981;
+}
+
+.row-pre-revision {
+  border-left: 3px solid #0284C7;
+}
+
+.add-evidencia-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fase-selector {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.fase-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fase-radio.selected {
+  background: #F0FDF4;
+  border-color: #10B981;
+  color: #065F46;
+  font-weight: 600;
+}
+
+.fase-radio input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.fase-reportante-pill {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  font-style: italic;
 }
 
 .ev-actions {
