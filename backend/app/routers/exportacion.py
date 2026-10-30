@@ -73,23 +73,39 @@ async def exportar_esquema(
     resultado = []
 
     for nombre in colecciones:
-        # Obtener información de la colección y su validador
-        colls = await db.list_collections(filter={"name": nombre}).to_list(length=1)
-        info = colls[0] if colls else {}
-        opciones = info.get("options", {})
-
-        # Obtener índices
+        validador = None
+        nivel_val = None
+        accion_val = None
         indices = []
-        async for ix in db[nombre].list_indexes():
-            ix = dict(ix)
-            ix.pop("v", None)  # Omitir versión interna de MongoDB
-            indices.append(ix)
+
+        try:
+            # 1. Obtener metadatos y validador de la colección
+            info_cmd = await db.command("listCollections", filter={"name": nombre})
+            batch_colls = info_cmd.get("cursor", {}).get("firstBatch", [])
+            if batch_colls:
+                opciones = batch_colls[0].get("options", {})
+                validador = opciones.get("validator")
+                nivel_val = opciones.get("validationLevel")
+                accion_val = opciones.get("validationAction")
+        except Exception:
+            pass
+
+        try:
+            # 2. Obtener lista de índices
+            idx_cmd = await db.command("listIndexes", nombre)
+            raw_indices = idx_cmd.get("cursor", {}).get("firstBatch", [])
+            for ix in raw_indices:
+                ix_dict = dict(ix)
+                ix_dict.pop("v", None)  # Omitir versión interna de MongoDB
+                indices.append(ix_dict)
+        except Exception:
+            pass
 
         resultado.append({
             "coleccion": nombre,
-            "validador": opciones.get("validator"),
-            "nivel_de_validacion": opciones.get("validationLevel"),
-            "accion_de_validacion": opciones.get("validationAction"),
+            "validador": validador,
+            "nivel_de_validacion": nivel_val,
+            "accion_de_validacion": accion_val,
             "indices": indices,
         })
 
@@ -99,3 +115,4 @@ async def exportar_esquema(
         media_type="application/json",
         headers={"Content-Disposition": 'attachment; filename="esquema_y_indices.json"'},
     )
+
