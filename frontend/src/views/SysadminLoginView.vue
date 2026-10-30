@@ -8,7 +8,7 @@
 
       <div class="header">
         <h1 class="title">Administración del Sistema</h1>
-        <p class="subtitle">Acceso exclusivo para gestión de usuarios y roles (RF-14)</p>
+        <p class="subtitle">Acceso exclusivo para gestión de usuarios y roles</p>
       </div>
 
       <div v-if="auth.error" class="error-banner">
