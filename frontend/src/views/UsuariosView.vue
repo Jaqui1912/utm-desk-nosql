@@ -37,7 +37,7 @@
     <main class="sysadmin-main">
       <div class="console-header">
         <div>
-          <h1 class="console-title">Directorio y Control de Acceso (RF-14)</h1>
+          <h1 class="console-title">Directorio y Control de Acceso</h1>
           <p class="console-subtitle">
             Alta de cuentas con contraseña cifrada (bcrypt), asignación estricta de roles y conmutación de estado.
           </p>

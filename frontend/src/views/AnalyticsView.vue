@@ -5,9 +5,6 @@
     <div class="view-header">
       <div class="header-left">
         <h1 class="view-title">Analítica de Resolución y Fallas Crónicas</h1>
-        <p class="view-subtitle">
-          Pipelines de agregación en MongoDB Atlas para toma de decisiones (CU-06 / RF-09).
-        </p>
       </div>
       <div class="header-actions">
         <button @click="cargarAnalitica" class="btn btn-secondary btn-sm" :disabled="loading">
@@ -63,27 +60,9 @@
         <div class="card dash-card">
           <div class="card-head-flex">
             <div>
-              <h2 class="dash-title">Pipeline 1 · Eficiencia y Tiempo por Edificio</h2>
+              <h2 class="dash-title">Eficiencia y Tiempo por Edificio</h2>
               <p class="dash-sub">Promedio y total de horas invertidas en incidencias resueltas</p>
             </div>
-            <button @click="showP1 = !showP1" class="btn btn-secondary btn-xs">
-              {{ showP1 ? 'Ocultar MQL' : '{ } Ver Pipeline MQL' }}
-            </button>
-          </div>
-
-          <!-- MQL Code Box -->
-          <div v-if="showP1" class="mql-box">
-            <pre><code>db.incidencias_campus.aggregate([
-  { $match: { estado: { $in: ["resuelta", "cerrada"] }, fecha_resolucion: { $exists: true } } },
-  { $addFields: { horas_resolucion: { $divide: [{ $subtract: ["$fecha_resolucion", "$fecha_creacion"] }, 3600000] } } },
-  { $group: {
-      _id: "$ubicacion.edificio",
-      incidencias: { $sum: 1 },
-      promedio_horas: { $avg: "$horas_resolucion" },
-      total_horas: { $sum: "$horas_resolucion" }
-  } },
-  { $sort: { promedio_horas: -1 } }
-])</code></pre>
           </div>
 
           <!-- Bars List -->
@@ -116,22 +95,9 @@
         <div class="card dash-card">
           <div class="card-head-flex">
             <div>
-              <h2 class="dash-title">Pipeline 2 · Ranking de Fallas Crónicas (Top Tags)</h2>
-              <p class="dash-sub">Frecuencia de etiquetas técnicas desanidadas con $unwind</p>
+              <h2 class="dash-title">Ranking de Fallas Crónicas</h2>
+              <p class="dash-sub">Frecuencia de etiquetas técnicas.</p>
             </div>
-            <button @click="showP2 = !showP2" class="btn btn-secondary btn-xs">
-              {{ showP2 ? 'Ocultar MQL' : '{ } Ver Pipeline MQL' }}
-            </button>
-          </div>
-
-          <!-- MQL Code Box -->
-          <div v-if="showP2" class="mql-box">
-            <pre><code>db.incidencias_campus.aggregate([
-  { $unwind: "$tags" },
-  { $group: { _id: "$tags", total: { $sum: 1 } } },
-  { $sort: { total: -1, _id: 1 } },
-  { $limit: 10 }
-])</code></pre>
           </div>
 
           <!-- Tags List -->
@@ -175,9 +141,6 @@ const loading = ref(true);
 const error = ref('');
 const eficienciaPorEdificio = ref([]);
 const topTags = ref([]);
-
-const showP1 = ref(false);
-const showP2 = ref(false);
 
 const totalResueltas = computed(() => {
   return eficienciaPorEdificio.value.reduce((acc, curr) => acc + (curr.incidencias || 0), 0);
@@ -316,24 +279,6 @@ onMounted(cargarAnalitica);
   font-size: 0.78rem;
   color: var(--text-secondary);
   margin-top: 0.15rem;
-}
-.btn-xs {
-  font-size: 0.72rem;
-  padding: 0.25rem 0.55rem;
-}
-
-/* MQL Code Box */
-.mql-box {
-  background: #0F172A;
-  border: 1px solid #1E293B;
-  border-radius: var(--radius-sm);
-  padding: 0.85rem;
-  margin-bottom: 1.25rem;
-  color: #38BDF8;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  line-height: 1.4;
-  overflow-x: auto;
 }
 
 /* Bars List */

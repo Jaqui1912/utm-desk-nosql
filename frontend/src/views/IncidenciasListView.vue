@@ -235,7 +235,7 @@ const listTitle = computed(() => {
 });
 
 const listSubtitle = computed(() => {
-  const suffix = auth.isReportante ? ' · solo ves las que tú registraste' : '';
+  const suffix = auth.isReportante ? ;
   return `${incidencias.value.length} de ${total.value} incidencias${suffix}`;
 });
 
