@@ -422,8 +422,12 @@ def resumen(incidencias, usuarios, ahora):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Carga los datos de prueba.")
-    parser.add_argument("--yes", action="store_true", help="no pedir confirmación")
+    parser = argparse.ArgumentParser(description="Carga datos en MongoDB Atlas de forma segura.")
+    parser.add_argument("--yes", action="store_true", help="no pedir confirmación interactiva")
+    parser.add_argument("--force-reset", action="store_true",
+                        help="PELIGRO: borra todas las colecciones antes de cargar datos de prueba")
+    parser.add_argument("--solo-faltantes", action="store_true",
+                        help="inserta usuarios e incidencias de prueba que no existan, sin borrar datos vivos")
     args = parser.parse_args()
 
     load_dotenv()
@@ -435,29 +439,81 @@ def main():
     if "usuarios" not in existentes or "incidencias_campus" not in existentes:
         sys.exit("Las colecciones no existen. Primero ejecuta:  python db/setup_db.py")
 
-    if not args.yes and input("Esto BORRA los documentos actuales de 'usuarios' e "
-                              "'incidencias_campus' y carga los datos de prueba. "
-                              "Escribe SI para continuar: ") != "SI":
-        sys.exit("Cancelado.")
+    num_usuarios = db["usuarios"].count_documents({})
+    num_incidencias = db["incidencias_campus"].count_documents({})
+    hay_datos = (num_usuarios > 0 or num_incidencias > 0)
 
     ahora = datetime.now(timezone.utc)
     usuarios = construir_usuarios(ahora)
     incidencias = construir_incidencias(ahora, usuarios)
 
-    db["incidencias_campus"].delete_many({})
-    db["usuarios"].delete_many({})
-    try:
-        db["usuarios"].insert_many(list(usuarios.values()))
-        print(f"[+] {len(usuarios)} usuarios insertados.")
-        db["incidencias_campus"].insert_many(incidencias)
-        print(f"[+] {len(incidencias)} incidencias insertadas.")
-    except BulkWriteError as e:
-        err = e.details["writeErrors"][0]
-        sys.exit(f"Atlas rechazó un documento (posición {err['index']}): {err.get('errmsg')}\n"
-                 f"{err.get('errInfo', '')}")
+    # Modo 1: Reseteo destructivo forzado (--force-reset)
+    if args.force_reset:
+        if not args.yes and input("ADVERTENCIA: --force-reset BORRA todos los usuarios e "
+                                  "incidencias actuales en Atlas. Escribe SI para continuar: ") != "SI":
+            sys.exit("Operación cancelada.")
 
-    resumen(incidencias, usuarios, ahora)
+        print("[!] Borrando documentos existentes...")
+        db["incidencias_campus"].delete_many({})
+        db["usuarios"].delete_many({})
+        try:
+            db["usuarios"].insert_many(list(usuarios.values()))
+            print(f"[+] {len(usuarios)} usuarios insertados.")
+            db["incidencias_campus"].insert_many(incidencias)
+            print(f"[+] {len(incidencias)} incidencias insertadas.")
+        except BulkWriteError as e:
+            err = e.details["writeErrors"][0]
+            sys.exit(f"Atlas rechazó un documento (posición {err['index']}): {err.get('errmsg')}\n"
+                     f"{err.get('errInfo', '')}")
+        resumen(incidencias, usuarios, ahora)
+        return
+
+    # Modo 2: Base vacía (carga inicial limpia)
+    if not hay_datos:
+        print("[+] La base de datos está vacía. Cargando datos iniciales de prueba...")
+        try:
+            db["usuarios"].insert_many(list(usuarios.values()))
+            print(f"[+] {len(usuarios)} usuarios insertados.")
+            db["incidencias_campus"].insert_many(incidencias)
+            print(f"[+] {len(incidencias)} incidencias insertadas.")
+        except BulkWriteError as e:
+            err = e.details["writeErrors"][0]
+            sys.exit(f"Atlas rechazó un documento: {err.get('errmsg')}")
+        resumen(incidencias, usuarios, ahora)
+        return
+
+    # Modo 3: Base con datos vivos (Modo Seguro / Preservación)
+    print(f"[*] La base de datos ya contiene datos vivos en Atlas:")
+    print(f"    - Usuarios existentes: {num_usuarios}")
+    print(f"    - Incidencias existentes: {num_incidencias}")
+    print("    -> Se activó la protección de datos: NO se eliminará ningún documento.")
+    print("    -> Para insertar solo cuentas o incidencias demo faltantes, usa --solo-faltantes.")
+    print("    -> Para forzar el reseteo completo (borrar todo), usa --force-reset.")
+
+    if args.solo_faltantes:
+        print("\n[+] Verificando e insertando solo documentos faltantes...")
+        usr_insertados = 0
+        for u in usuarios.values():
+            if not db["usuarios"].find_one({"correo": u["correo"]}):
+                try:
+                    db["usuarios"].insert_one(u)
+                    usr_insertados += 1
+                except Exception as e:
+                    print(f"    [!] Error al insertar usuario {u['correo']}: {e}")
+        print(f"[+] {usr_insertados} usuarios demo nuevos agregados.")
+
+        inc_insertadas = 0
+        for inc in incidencias:
+            if not db["incidencias_campus"].find_one({"codigo": inc["codigo"]}):
+                try:
+                    db["incidencias_campus"].insert_one(inc)
+                    inc_insertadas += 1
+                except Exception as e:
+                    print(f"    [!] Error al insertar incidencia {inc['codigo']}: {e}")
+        print(f"[+] {inc_insertadas} incidencias demo nuevas agregadas.")
+    else:
+        print("\nNo se realizaron cambios en la base de datos.")
 
 
 if __name__ == "__main__":
-    main()
+    main()

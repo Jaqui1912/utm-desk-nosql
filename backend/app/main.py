@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .database import connect_db, close_db
-from .routers import archivos, auth, incidencias, usuarios
+from .routers import archivos, auth, exportacion, incidencias, usuarios
 
 
 @asynccontextmanager
@@ -63,6 +64,7 @@ app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(incidencias.router)
 app.include_router(archivos.router)
+app.include_router(exportacion.router)
 
 
 @app.get("/", tags=["health"])

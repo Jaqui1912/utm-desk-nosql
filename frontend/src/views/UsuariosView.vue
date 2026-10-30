@@ -55,6 +55,98 @@
         {{ errorMsg }}
       </div>
 
+      <!-- ── Panel de Respaldo y Exportación NoSQL (JSON) ── -->
+      <section class="console-card export-card" aria-labelledby="export-title">
+        <div class="export-header">
+          <div class="export-titles">
+            <div class="export-badge">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Respaldo y Auditoría NoSQL</span>
+            </div>
+            <h2 id="export-title" class="card-title">Exportación de Datos en JSON</h2>
+            <p class="card-desc">
+              Descarga directa en formato JSON estándar de las colecciones vivas en MongoDB Atlas y sus esquemas de validación ($jsonSchema).
+            </p>
+          </div>
+          <div class="export-actions">
+            <!-- Botón Usuarios -->
+            <button
+              type="button"
+              @click="handleExportar('usuarios')"
+              class="btn-export"
+              :disabled="exportando !== null"
+              title="Descargar directorio de usuarios en JSON"
+            >
+              <div class="btn-export-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="btn-export-text">
+                <span class="file-name font-mono">usuarios.json</span>
+                <span class="file-desc">Directorio de cuentas</span>
+              </div>
+              <span v-if="exportando === 'usuarios'" class="export-spinner" aria-label="Descargando..."></span>
+              <span v-else class="export-tag">JSON</span>
+            </button>
+
+            <!-- Botón Incidencias -->
+            <button
+              type="button"
+              @click="handleExportar('incidencias')"
+              class="btn-export"
+              :disabled="exportando !== null"
+              title="Descargar historial de incidencias en JSON"
+            >
+              <div class="btn-export-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+              </div>
+              <div class="btn-export-text">
+                <span class="file-name font-mono">incidencias_campus.json</span>
+                <span class="file-desc">Historial completo</span>
+              </div>
+              <span v-if="exportando === 'incidencias'" class="export-spinner" aria-label="Descargando..."></span>
+              <span v-else class="export-tag">JSON</span>
+            </button>
+
+            <!-- Botón Esquema -->
+            <button
+              type="button"
+              @click="handleExportar('esquema')"
+              class="btn-export"
+              :disabled="exportando !== null"
+              title="Descargar validador e índices en JSON"
+            >
+              <div class="btn-export-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </div>
+              <div class="btn-export-text">
+                <span class="file-name font-mono">esquema_y_indices.json</span>
+                <span class="file-desc">$jsonSchema e índices</span>
+              </div>
+              <span v-if="exportando === 'esquema'" class="export-spinner" aria-label="Descargando..."></span>
+              <span v-else class="export-tag">JSON</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
       <div class="sys-grid">
         
         <!-- ── Formulario de Registro de Usuario ── -->
@@ -227,12 +319,14 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import usuariosApi from '../api/usuarios';
+import exportarApi from '../api/exportar';
 
 const router = useRouter();
 const auth = useAuthStore();
 
 const loading = ref(true);
 const saving = ref(false);
+const exportando = ref(null);
 const errorMsg = ref('');
 const successMsg = ref('');
 const usuarios = ref([]);
@@ -327,6 +421,27 @@ async function handleToggleEstado(usuario) {
     successMsg.value = `Cuenta de '${usuario.nombre}' ${nuevoEstado ? 'activada' : 'desactivada'}.`;
   } catch (err) {
     errorMsg.value = err.response?.data?.detail || err.message || 'Error al cambiar estado.';
+  }
+}
+
+async function handleExportar(tipo) {
+  exportando.value = tipo;
+  errorMsg.value = '';
+  try {
+    if (tipo === 'usuarios') {
+      await exportarApi.exportarUsuarios();
+      successMsg.value = 'Archivo "usuarios.json" generado y descargado correctamente desde MongoDB Atlas.';
+    } else if (tipo === 'incidencias') {
+      await exportarApi.exportarIncidencias();
+      successMsg.value = 'Archivo "incidencias_campus.json" generado y descargado correctamente desde MongoDB Atlas.';
+    } else if (tipo === 'esquema') {
+      await exportarApi.exportarEsquema();
+      successMsg.value = 'Archivo "esquema_y_indices.json" ($jsonSchema e índices) generado y descargado correctamente.';
+    }
+  } catch (err) {
+    errorMsg.value = err.response?.data?.detail || err.message || 'Error al exportar los datos.';
+  } finally {
+    exportando.value = null;
   }
 }
 
@@ -706,5 +821,116 @@ onMounted(cargarUsuarios);
 .back-incidencias:hover {
   color: #FFFFFF;
   border-color: #64748B;
+}
+
+/* ── Panel de Respaldo y Exportación NoSQL ── */
+.export-card {
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #111827 0%, #131E33 100%);
+  border: 1px solid #1E293B;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+.export-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.export-titles {
+  max-width: 500px;
+}
+.export-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38BDF8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  margin-bottom: 0.5rem;
+}
+.export-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #1A2234;
+  border: 1px solid #334155;
+  color: #E2E8F0;
+  padding: 0.65rem 0.95rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+.btn-export:hover:not(:disabled) {
+  background: #1E293B;
+  border-color: #38BDF8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+}
+.btn-export:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-export-icon {
+  color: #38BDF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-export-text {
+  display: flex;
+  flex-direction: column;
+}
+.btn-export-text .file-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+.btn-export-text .file-desc {
+  font-size: 0.68rem;
+  color: #94A3B8;
+}
+.export-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  background: #0F172A;
+  color: #38BDF8;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #1E293B;
+}
+.export-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #334155;
+  border-top-color: #38BDF8;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@media (max-width: 960px) {
+  .export-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .export-actions {
+    flex-direction: column;
+  }
+  .btn-export {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 </style>
