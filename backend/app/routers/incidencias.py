@@ -126,6 +126,8 @@ async def buscar_incidencias(
         "estado": 1,
         "ubicacion": 1,
         "tags": 1,
+        "tecnico_asignado": 1,
+        "fecha_creacion": 1,
         "score": {"$meta": "textScore"},
     }
 

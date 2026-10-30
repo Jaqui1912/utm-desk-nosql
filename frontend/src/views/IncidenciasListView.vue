@@ -76,11 +76,6 @@
       </button>
     </div>
 
-    <!-- ── Query $text visible (como en el prototipo) ── -->
-    <div v-if="q.trim()" class="query-badge">
-      <code>db.incidencias_campus.find({ $text: { $search: "{{ q.trim() }}" } }).sort({ score: { $meta: "textScore" } })</code>
-    </div>
-
     <!-- ── Tabla de Incidencias con Tamaño Fijo y Sólido ── -->
     <div class="table-card">
       <div class="table-responsive">
@@ -109,7 +104,7 @@
             </tr>
 
             <!-- Estado: Sin resultados dentro de la tabla -->
-            <tr v-else-if="incidencias.length === 0">
+            <tr v-else-if="incidenciasFiltradas.length === 0">
               <td :colspan="hasTextScore ? 8 : 7" class="table-status-cell">
                 <div class="empty-state">
                   <div class="empty-icon">
@@ -127,7 +122,7 @@
             <!-- Filas con incidencias -->
             <tr
               v-else
-              v-for="inc in incidencias"
+              v-for="inc in incidenciasFiltradas"
               :key="inc.id || inc._id"
               class="inc-row"
               @click="navegarA(inc._id || inc.id)"
@@ -208,6 +203,35 @@ let searchTimeout = null;
 
 const hasTextScore = computed(() => incidencias.value.some(i => i.score !== undefined));
 
+
+// 🔹 Búsqueda en tiempo real instantánea 🔹
+const incidenciasFiltradas = computed(() => {
+  const query = q.value.trim().toLowerCase();
+  if (!query) return incidencias.value;
+
+  return incidencias.value.filter(inc => {
+    const titulo = (inc.titulo || '').toLowerCase();
+    const descripcion = (inc.descripcion || '').toLowerCase();
+    const codigo = (inc.codigo || '').toLowerCase();
+    const edificio = (inc.ubicacion?.edificio || '').toLowerCase();
+    const zona = (inc.ubicacion?.zona || '').toLowerCase();
+    const categoria = (inc.categoria || '').toLowerCase();
+    const tags = Array.isArray(inc.tags) ? inc.tags.join(' ').toLowerCase() : '';
+    const tecnico = (inc.tecnico_asignado?.nombre || '').toLowerCase();
+
+    return (
+      titulo.includes(query) ||
+      descripcion.includes(query) ||
+      codigo.includes(query) ||
+      edificio.includes(query) ||
+      zona.includes(query) ||
+      categoria.includes(query) ||
+      tags.includes(query) ||
+      tecnico.includes(query)
+    );
+  });
+});
+
 function navegarA(id) {
   if (id) {
     router.push(`/incidencias/${id}`);
@@ -236,7 +260,7 @@ const listTitle = computed(() => {
 
 const listSubtitle = computed(() => {
   const suffix = auth.isReportante ? ' · solo ves las que tú registraste' : '';
-  return `${incidencias.value.length} de ${total.value} incidencias${suffix}`;
+  return `${incidenciasFiltradas.value.length} de ${total.value} incidencias${suffix}`;
 });
 
 const hasFilters = computed(() => !!(q.value || fCat.value || fEst.value || fEdi.value || soloMias.value));
@@ -341,11 +365,23 @@ async function fetchEstadoCounts() {
 }
 
 function onSearch() {
+  // El filtrado en pantalla es instantáneo con incidenciasFiltradas
   clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    skip.value = 0;
-    fetchData();
-  }, 350);
+  searchTimeout = setTimeout(async () => {
+    if (q.value.trim().length >= 2) {
+      try {
+        const res = await incidenciasApi.buscar(q.value.trim(), 50);
+        if (res.data.resultados && res.data.resultados.length > 0) {
+          incidencias.value = res.data.resultados;
+          total.value = res.data.total;
+        }
+      } catch (err) {
+        // Mantiene los datos en memoria si falla
+      }
+    } else if (!q.value.trim()) {
+      fetchData();
+    }
+  }, 400);
 }
 
 function clearSearch() {
@@ -497,18 +533,7 @@ onMounted(fetchData);
   font-size: 0.7rem;
 }
 
-/* ── Query badge estilo MongoDB ── */
-.query-badge {
-  background: #0F172A;
-  color: #38BDF8;
-  border-radius: var(--radius-md);
-  padding: 0.55rem 0.85rem;
-  margin-bottom: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  overflow-x: auto;
-  border: 1px solid #1E293B;
-}
+
 
 /* ── Cargando ── */
 .loading-state {
